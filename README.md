@@ -5,8 +5,8 @@ HTML5 form validation.
 ## Getting Started
 Download the [production version][min] or the [development version][max].
 
-[min]: https://raw.github.com/jaymorrow/validatr/master/dist/min/
-[max]: https://raw.github.com/jaymorrow/validatr/master/dist/src/
+[min]: https://github.com/jaymorrow/validatr/tree/master/dist/min
+[max]: https://github.com/jaymorrow/validatr/tree/master/dist/src
 
 In your web page:
 
