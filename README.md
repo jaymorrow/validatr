@@ -5,14 +5,14 @@ HTML5 form validation.
 ## Getting Started
 Download the [production version][min] or the [development version][max].
 
-[min]: https://raw.github.com/jaymorrow/validatr/master/dist/validatr.min.js
-[max]: https://raw.github.com/jaymorrow/validatr/master/dist/validatr.js
+[min]: https://raw.github.com/jaymorrow/validatr/master/dist/min/
+[max]: https://raw.github.com/jaymorrow/validatr/master/dist/src/
 
 In your web page:
 
 ```html
-<script src="jquery.js"></script>
-<script src="dist/validatr.min.js"></script>
+<link rel="stylesheet" href="validatr.min.css">
+<script src="validatr.min.js"></script>
 <script>
 jQuery(function($) {
   $('form').validatr();
