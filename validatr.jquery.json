@@ -1,0 +1,28 @@
+{
+  "name": "validatr",
+  "title": "Validatr",
+  "description": "HTML5 form validation.",
+  "version": "0.1.0",
+  "homepage": "https://github.com/jaymorrow/validatr",
+  "author": {
+    "name": "Jay Morrow",
+    "email": "jay.m.morrow@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jaymorrow/validatr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jaymorrow/validatr/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/jaymorrow/validatr/blob/master/LICENSE-MIT"
+    }
+  ],
+  "dependencies": {
+    "jquery": "1.7.2"
+  },
+  "keywords": ["form", "validate", "HTML5", "validation", "input"]
+}

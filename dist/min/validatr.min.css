@@ -1,0 +1,5 @@
+/*! Validatr - v0.1.0 - 2013-02-09
+* https://github.com/jaymorrow/validatr
+* Copyright (c) 2013 Jay Morrow; Licensed MIT */
+
+.validatr-error{color:#f0444d;background-color:#ffcbcb;border:1px solid #e4a6af;padding:2px 6px;border-radius:2px}

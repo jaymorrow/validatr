@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Validatr</title>
+    <style>
+    .field {
+        margin-bottom: 10px;
+    }
+
+    label {
+        display: inline-block;
+        width: 100px;
+    }
+    </style>
+    <link rel="stylesheet" href="css/validatr.css"> 
+    <script src="../libs/jquery/jquery.js"></script>
+    <script src="js/validatr.js"></script>
+    <script>
+    $(function () {
+        $('form').validatr();
+    });
+    </script>
+</head>
+<body>
+    <form action="./">
+        <div class="field"><label for="color">Color</label><input type="color" id="color" name="color"></div>
+        <div class="field"><label for="date">Date</label><input type="date" id="date" name="date"></div>
+        <div class="field"><label for="email">Email</label><input type="email" id="email" name="email"></div>
+        <div class="field"><label for="email2">Email Match</label><input type="email" id="email2" name="email2" data-match="email"></div>
+        <div class="field"><label for="number">Number</label><input type="number" id='number' name="number"></div>
+        <div class="field"><label for="range">Range</label><input type="range" id="range" min="1" max="10" name="range"></div>
+        <div class="field"><label for="tel">Tel</label><input type="tel" id="tel" pattern="12345" name="tel"></div>
+        <div class="field"><label for="text">Text</label><input type="text" id="text" name="text" required></div>  
+        <div class="field"><label for="time">Time</label><input type="time" id="time" name="time"></div>  
+        <div class="field"><label for="url">Url</label><input type="url" id="url" name="url"></div>  
+        <div class="field"><label for="password">Password</label><input type="password" id="password" name="password"></div>  
+        <input type="reset">
+        <input type="submit" value="Submit">    
+    </form>
+</body>
+</html>
