@@ -137,7 +137,7 @@
             return {
                 valid: element.checked,
                 message: 'Please check this box if you want to proceed.'
-            }
+            };
         },
 
         color: function (element) {
@@ -260,6 +260,9 @@
         return element;
     },
 
+    /*
+     * Widget
+     */
     Widget = function () {};
 
     Widget.prototype = {
@@ -297,7 +300,7 @@
             }
 
             supressError = true;
-            valid = submitForm(this.elements || this.getElements(element));
+            valid = validateForm(this.elements || this.getElements(element));
             supressError = false;
 
             return valid;
@@ -324,17 +327,48 @@
             .on('valid.' + widgetName, $.proxy(clearError, this))
             .on('invalid.' + widgetName, $.proxy(invalid, this));
 
-        if (this.options.event) {
-            this.elements.on('blur.' + widgetName, $.proxy(blur, this));
-        }
-
-        if (/key/i.test(this.options.event)) {
-            this.elements.on('focus.' + widgetName, $.proxy(focus, this));
-        }
-
         this.el.noValidate = true;
-        this.$el.on('submit.' + widgetName, $.proxy(submitEvent, this, this.elements));
+        this.$el.on('submit.' + widgetName, $.proxy(submitForm, this));
         this.$el.on('reset.' + widgetName, $.proxy(resetForm, this));
+    }
+
+    function bindElements() {
+        /*jshint validthis:true */
+
+        this.elements.on({
+            'focus.validatr': bindEvents,
+            'blur.validatr': unbindEvents 
+        });
+    }
+
+    function unbindElements() {
+        /*jshint validthis:true */
+
+        this.elements.off('focus.validatr blur.validatr');
+    }
+
+    function bindEvents (e) {
+        var target = e.target;
+
+        $(target).on({
+            'change.validatrinput': function () {
+                setTimeout(function () {
+                    validateElement(target);                
+                }, 1);
+            },
+            'blur.validatrinput': function () {
+                validateElement(target);                
+            },
+            'keyup.validatrinput': function () {
+                if (target.value.length) {
+                    validateElement(target);
+                }                
+            }
+        });
+    }
+
+    function unbindEvents(e) {
+        $(e.target).off('.validatrinput');
     }
 
     function validateElement(element) {
@@ -386,29 +420,7 @@
         return false;
     }
 
-    function submitEvent(elements) {
-        /*jshint validthis:true */
-
-        this.isSubmit = true;
-        this.firstError = null;
-
-        resetForm.call(this);
-        var valid = submitForm(elements);
-        
-
-        if (valid) {
-            return this.options.valid.call(this.el, this.el);
-        } else {
-            this.firstError.focus();
-        }
-
-        this.isSubmit = false;
-        this.firstError = null;
-
-        return valid;
-    }
-
-    function submitForm (elements) {
+    function validateForm (elements) {
         var valid = true;        
 
         elements.each(function (i, element) {
@@ -420,8 +432,32 @@
         return valid;
     }
 
+    function submitForm() {
+        /*jshint validthis:true */
+
+        this.isSubmit = true;
+        this.firstError = null;
+
+        resetForm.call(this);
+        var valid = validateForm(this.elements);
+        
+
+        if (valid) {
+            return this.options.valid.call(this.el, this.el);
+        } else {
+            bindElements.call(this);
+            this.firstError.focus();
+        }
+
+        this.isSubmit = false;
+        this.firstError = null;
+
+        return valid;
+    }
+
     function resetForm() {
         /*jshint validthis:true */
+        unbindElements.call(this);
         this.$el.find('.validatr-message').remove();
     }
 
@@ -445,29 +481,6 @@
         return false;
     }
 
-    function focus(e) {
-        /*jshint validthis:true */
-
-        var target = e.target,
-            $target = $(target),
-            that = this;
-
-        $target.on(this.options.event + '.' + widgetName, debounce(function () {
-            if (target.value.length) {
-                validateElement(target);
-            }
-        }, this.options.delay));
-    }
-
-    function blur(e) {
-        /*jshint validthis:true */
-        var target = e.target,
-            $target = $(target);
-
-        $target.off(this.options.event + '.' + widgetName);
-        validateElement(target);
-    }
-
     function invalid(e) {
         /*jshint validthis:true */
 
@@ -480,46 +493,46 @@
         var target = e.target,
             $target = $(target),
             msg = target.validationMessage || $.data(target, 'validationMessage'),
+            options = this.options,
             error;
 
-        if (!this.isSubmit || (this.isSubmit && !this.firstError)) {
-            error = $(this.options.template.replace('{{message}}', msg));
-            this.firstError = $target[this.options.insert](error);
-            this.options.position.call(this, error, $target);
+        clearError(e);
+        if (options.showall || (!this.isSubmit || (this.isSubmit && !this.firstError))) {
+            error = $(options.template.replace('{{message}}', msg));
+            this.firstError = $target.after(error);
+            options.position.call(this, error, $target);
         }
     }
 
     function clearError(e) {
-        $(e.target)
-            .next('.validatr-message').remove()
-            .end().prev('.validatr-message').remove();
+        $(e.target).next('.validatr-message').remove();
     }
 
     function position(error, $target) {
         /*jshint validthis:true */
-
         error.css('position', 'absolute');
 
-        var offset = $target.offset();
+        var offset = $target.offset(),
+            options = this.options;
 
-        if (regex.topbottom.test(this.options.location)) {
+        if (regex.topbottom.test(options.location)) {
             error.offset({left: offset.left});
 
-            if (this.options.location === 'top') {
+            if (options.location === 'top') {
                 error.offset({top: offset.top - error.outerHeight() - 2});
             }
 
-            if (this.options.location === 'bottom') {
+            if (options.location === 'bottom') {
                 error.offset({top: offset.top + error.outerHeight()});
             }            
-        } else if (regex.leftright.test(this.options.location)) {
+        } else if (regex.leftright.test(options.location)) {
             error.offset({top: offset.top});
 
-            if (this.options.location === 'left') {
+            if (options.location === 'left') {
                 error.offset({left: offset.left - error.outerWidth() - 2});
             }
 
-            if (this.options.location === 'right') {
+            if (options.location === 'right') {
                 error.offset({left: offset.left + $target.outerWidth() + 2});
             }            
         }        
@@ -569,16 +582,12 @@
     };
 
     $.fn[widgetName].defualtOptions = {
-        event: 'keydown',
-        delay: 750,
-        insert: 'before',
-        location: 'bottom',
+        showall: false,
+        location: 'right',
         position: position,
         template: '<div>{{message}}</div>',
         theme: 'none',
-        valid: function () {
-            return true;
-        }
+        valid: $.noop
     };
 
     $[widgetName] = new Widget();
