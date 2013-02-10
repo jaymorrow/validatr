@@ -73,8 +73,6 @@
                 inputs[ props[i] ] = !!bool;
             }
 
-            inputs.text = true;
-
             return inputs;
         })('search tel url email datetime date month week time datetime-local number range color'.split(' '));
 
@@ -124,6 +122,7 @@
     supressError = false,
 
     regex = {
+        boxes: /checkbox|radio/i,
         color: /^#[0-9A-F]{6}$/i,
         date: /^(0[1-9]|1[012])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/,
         email: /^[a-zA-Z0-9.!#$%&’*+\/=?\^_`{|}~\-]+@[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)*$/,
@@ -134,6 +133,13 @@
     },
 
     checkValidity = {
+        checkbox: function (element) {
+            return {
+                valid: element.checked,
+                message: 'Please check this box if you want to proceed.'
+            }
+        },
+
         color: function (element) {
             return {
                 valid: regex.color.test(element.value),
@@ -204,14 +210,25 @@
             };
         },
 
+        radio: function (element) {
+            return {
+                valid: $('input[type="radio"][name="' + element.name + '"]:checked').length,
+                message: 'Please select one of these options.'
+            };
+        },
+
         range: function (element) {
             return this.number(element);
         },
 
         required: function (element) {
+            if (regex.boxes.test(element.type)) {
+                return this[element.type](element);
+            }
+
             return {
-                valid: $.trim(element.value).length,
-                message: 'Please fill out this field.'
+                valid: element.value.length,
+                message: element.nodeName.toLowerCase() === 'select' ? 'Please select an item in the list.' : 'Please fill out this field.'
             };
         },
 
@@ -322,27 +339,34 @@
 
     function validateElement(element) {
         var type = element.getAttribute('type'),
-            support = Support.inputtypes[type],
             required = Support.input.required ? element.required : isRequired(element),
             match = $(element).data('match'),
             check = {},
             valid = true;
 
-        if (element.willValidate && support) {
+        if (element.willValidate) {
             valid = element.checkValidity();
-        } else if (required && !element.value.length) {
-            check = checkValidity.required(element);
-            valid = check.valid;
-        } else if (element.value.length) {
-            if (element.pattern) {
-                type = 'pattern';
-            }
-
-            if (checkValidity[type]) {
-                check = checkValidity[type](element);
+            
+            if (!valid) {
+                return false;
+            } 
+        } else {
+            if (required) {
+                check = checkValidity.required(element);
                 valid = check.valid;
-            } else {
-                valid = true;
+            }   
+
+            if (valid && element.value.length && !regex.boxes.test(type)) {
+                if (element.pattern) {
+                    type = 'pattern';
+                }
+
+                if (checkValidity[type]) {
+                    check = checkValidity[type](element);
+                    valid = check.valid;
+                } else {
+                    valid = true;
+                }
             }
         }
 
@@ -352,14 +376,14 @@
         }
 
         if (valid) {
-            console.log(valid);
             $(element).trigger('valid');
-        } else if (check.message) {
-            $.data(element, 'validationMessage', check.message);
-            $(element).trigger('invalid');
-        }
+            return true;
+        } 
 
-        return valid;
+        $.data(element, 'validationMessage', check.message);
+        $(element).trigger('invalid');
+        
+        return false;
     }
 
     function submitEvent(elements) {
