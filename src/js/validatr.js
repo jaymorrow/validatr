@@ -212,7 +212,7 @@
 
         radio: function (element) {
             return {
-                valid: $('input[type="radio"][name="' + element.name + '"]:checked').length,
+                valid: $(document.getElementsByName(element.name)).is(':checked'),
                 message: 'Please select one of these options.'
             };
         },
@@ -318,14 +318,14 @@
         }
 
         this.isSubmit = false;
-        this.firstError = null;
+        this.firstError = false;
 
         this.options = $.extend({}, $.fn[widgetName].defualtOptions, options);
         this.options.template = $(this.options.template).addClass(theme.base + theme[this.options.theme])[0].outerHTML;
 
         this.elements = this.getElements(this.el)
-            .on('valid.' + widgetName, $.proxy(clearError, this))
-            .on('invalid.' + widgetName, $.proxy(invalid, this));
+            .on('valid.' + widgetName, $.proxy(validElement, this))
+            .on('invalid.' + widgetName, $.proxy(invalidElement, this));
 
         this.el.noValidate = true;
         this.$el.on('submit.' + widgetName, $.proxy(submitForm, this));
@@ -336,15 +336,19 @@
         /*jshint validthis:true */
 
         this.elements.on({
-            'focus.validatr': bindEvents,
-            'blur.validatr': unbindEvents 
+            'focus.validatrelement': bindEvents,
+            'blur.validatrelement': unbindEvents 
+        });
+
+        $('input[type=radio]').on('click.validatrelement', function (e) {
+            validateElement(e.target);
         });
     }
 
     function unbindElements() {
         /*jshint validthis:true */
 
-        this.elements.off('focus.validatr blur.validatr');
+        this.elements.off('.validatrelement');
     }
 
     function bindEvents (e) {
@@ -372,13 +376,21 @@
     }
 
     function validateElement(element) {
+        if (element.type === 'radio') {
+            var radio = $(document.getElementsByName(element.name)).filter('[required]');
+            if (radio.length) {
+                element = radio[0];
+            }
+        }
+
         var type = element.getAttribute('type'),
             required = Support.input.required ? element.required : isRequired(element),
             match = $(element).data('match'),
             check = {},
             valid = true;
 
-        if (element.willValidate) {
+
+        if (!element.willValidate) {
             valid = element.checkValidity();
             
             if (!valid) {
@@ -436,11 +448,8 @@
         /*jshint validthis:true */
 
         this.isSubmit = true;
-        this.firstError = null;
-
         resetForm.call(this);
         var valid = validateForm(this.elements);
-        
 
         if (valid) {
             return this.options.valid.call(this.el, this.el);
@@ -450,14 +459,14 @@
         }
 
         this.isSubmit = false;
-        this.firstError = null;
-
         return valid;
     }
 
     function resetForm() {
         /*jshint validthis:true */
+
         unbindElements.call(this);
+        this.firstError = false;
         this.$el.find('.validatr-message').remove();
     }
 
@@ -481,7 +490,7 @@
         return false;
     }
 
-    function invalid(e) {
+    function invalidElement(e) {
         /*jshint validthis:true */
 
         if (supressError) {
@@ -494,17 +503,23 @@
             $target = $(target),
             msg = target.validationMessage || $.data(target, 'validationMessage'),
             options = this.options,
-            error;
-
-        clearError(e);
-        if (options.showall || (!this.isSubmit || (this.isSubmit && !this.firstError))) {
             error = $(options.template.replace('{{message}}', msg));
+
+
+        if (this.isSubmit && !this.firstError) {
             this.firstError = $target.after(error);
+            options.position.call(this, error, $target);
+            return;
+        }
+
+        if (!this.isSubmit || options.showall) {
+            validElement(e);
+            $target.after(error);
             options.position.call(this, error, $target);
         }
     }
 
-    function clearError(e) {
+    function validElement(e) {
         $(e.target).next('.validatr-message').remove();
     }
 
