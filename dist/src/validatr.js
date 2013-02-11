@@ -1,14 +1,14 @@
-/*! Validatr - v0.1.0 - 2013-02-09
+/*! Validatr - v0.1.0 - 2013-02-11
 * https://github.com/jaymorrow/validatr
 * Copyright (c) 2013 Jay Morrow; Licensed MIT */
 
-(function(window, $, undefined) {
+(function(window, document, $, undefined) {
     "use strict";
 
     /*! Modernizr 2.6.2 (Custom Build) | MIT & BSD
      * Build: http://modernizr.com/download/#-input-inputtypes
      */
-    var Support = (function( window, document, undefined ) {
+    var Support = (function() {
 
         var Modernizr = {},
 
@@ -69,57 +69,16 @@
                 inputs[ props[i] ] = !!bool;
             }
 
-            inputs.text = true;
-
             return inputs;
         })('search tel url email datetime date month week time datetime-local number range color'.split(' '));
 
         inputElem = null;
 
         return Modernizr;
-    })(window, window.document),
-
-    /*! Underscore.js 1.4.4
-     * http://underscorejs.org
-     * (c) 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
-     * Underscore may be freely distributed under the MIT license.
-     */
-    debounce = function(func, wait, immediate) {
-        var timeout, result;
-        return function() {
-            var context = this, args = arguments;
-            var later = function() {
-                timeout = null;
-                if (!immediate) {
-                    result = func.apply(context, args);
-                }
-            };
-            var callNow = immediate && !timeout;
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-            if (callNow) {
-                result = func.apply(context, args);
-            }
-            return result;
-        };
-    },
-
-    uiExists = $.ui !== undefined,
-
-    widgetName = 'validatr',
-
-    theme = {
-        base: widgetName + '-message ',
-        bootstrap: 'alert alert-error',
-        jqueryui: 'ui-state-error ui-corner-all',
-        none: widgetName + '-error'
-    },
-
-    submit = 'button, input[type=submit], input[type=button], input[type=reset]',
-
-    supressError = false,
-
-    regex = {
+    })(),
+    
+    Rules = {
+        boxes: /checkbox|radio/i,
         color: /^#[0-9A-F]{6}$/i,
         date: /^(0[1-9]|1[012])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/,
         email: /^[a-zA-Z0-9.!#$%&’*+\/=?\^_`{|}~\-]+@[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)*$/,
@@ -128,42 +87,33 @@
         topbottom: /top|bottom/i,
         url: /https?:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
     },
+    
+    Tests = {
+        checkbox: function (element) {
+            return {
+                valid: element.checked,
+                message: 'Please check this box if you want to proceed.'
+            };
+        },
 
-    checkValidity = {
         color: function (element) {
             return {
-                valid: regex.color.test(element.value),
+                valid: Rules.color.test(element.value),
                 message: 'Please enter a color in the format #xxxxxx'
             };
         },
 
         date: function (element) {
             return {
-                valid: regex.date.test(element.value),
+                valid: Rules.date.test(element.value),
                 message: 'Please enter a date in the format mm/dd/yyyy'
             };
         },
 
         email: function (element) {           
             return {
-                valid: regex.email.test(element.value),
+                valid: Rules.email.test(element.value),
                 message: 'Please enter an email address.'
-            };
-        },
-
-        match: function (element, match) {
-            var source = document.getElementById(match) || document.getElementsByName(match)[0];
-
-            if (!source) {
-                return {
-                    valid: false,
-                    message: "'" + match + "' can not be found"
-                };
-            }
-
-            return {
-                valid: element.value === source.value,
-                message: "'" + element.name + "' does not equal '" + source.name +"'"
             };
         },
 
@@ -200,14 +150,25 @@
             };
         },
 
+        radio: function (element) {
+            return {
+                valid: $(document.getElementsByName(element.name)).is(':checked'),
+                message: 'Please select one of these options.'
+            };
+        },
+
         range: function (element) {
             return this.number(element);
         },
 
         required: function (element) {
+            if (Rules.boxes.test(element.type)) {
+                return this[element.type](element);
+            }
+
             return {
-                valid: $.trim(element.value).length,
-                message: 'Please fill out this field.'
+                valid: element.value.length,
+                message: element.nodeName.toLowerCase() === 'select' ? 'Please select an item in the list.' : 'Please fill out this field.'
             };
         },
 
@@ -219,15 +180,42 @@
 
         time: function (element) {
             return {
-                valid: regex.time.test(element.value),
+                valid: Rules.time.test(element.value),
                 message: 'Please enter a time in the format hh:mm:ss'
             };
         },
 
         url: function (element) {
             return {
-                valid: regex.url.test(element.value),
+                valid: Rules.url.test(element.value),
                 message: 'Please enter a url.'
+            };
+        }
+    },
+
+    CustomTests = {
+        match: function (element) {
+            var match = $(element).data('match'),
+                source = document.getElementById(match) || document.getElementsByName(match)[0];
+
+            if (!source) {
+                return {
+                    valid: false,
+                    message: "'" + match + "' can not be found"
+                };
+            }
+
+            $(source)
+                .off('valid.validatrinput')
+                .on('valid.validatrinput', function () {
+                    if (element.value === source.value) {
+                        validateElement(element);
+                    }
+                });
+
+            return {
+                valid: element.value === source.value,
+                message: "'" + element.name + "' does not equal '" + source.name +"'"
             };
         }
     },
@@ -239,9 +227,34 @@
         return element;
     },
 
+    widgetName = 'validatr',
+
+    theme = {
+        base: widgetName + '-message ',
+        bootstrap: 'alert alert-error',
+        jqueryui: 'ui-state-error ui-corner-all',
+        none: widgetName + '-error'
+    },
+
+    submit = 'button, input[type=submit], input[type=button], input[type=reset]',
+
+    supressError = false,
+
+    // Validatr
     Widget = function () {};
 
     Widget.prototype = {
+
+        addTest: function (name) {
+            var isObject = typeof name !== 'string',
+                args = Array.prototype.slice.call(arguments, 1)[0];
+
+            if (isObject) {
+                $.extend(CustomTests, name);
+            } else {
+                CustomTests[name] = args;
+            }
+        },
 
         getElements: function (form) {
             if (this.elements) {
@@ -276,7 +289,7 @@
             }
 
             supressError = true;
-            valid = submitForm(this.elements || this.getElements(element));
+            valid = validateForm(this.elements || this.getElements(element));
             supressError = false;
 
             return valid;
@@ -294,93 +307,124 @@
         }
 
         this.isSubmit = false;
-        this.firstError = null;
+        this.firstError = false;
 
         this.options = $.extend({}, $.fn[widgetName].defualtOptions, options);
         this.options.template = $(this.options.template).addClass(theme.base + theme[this.options.theme])[0].outerHTML;
 
         this.elements = this.getElements(this.el)
-            .on('valid.' + widgetName, $.proxy(clearError, this))
-            .on('invalid.' + widgetName, $.proxy(invalid, this));
-
-        if (this.options.event) {
-            this.elements.on('blur.' + widgetName, $.proxy(blur, this));
-        }
-
-        if (/key/i.test(this.options.event)) {
-            this.elements.on('focus.' + widgetName, $.proxy(focus, this));
-        }
+            .on('valid.' + widgetName, $.proxy(validElement, this))
+            .on('invalid.' + widgetName, $.proxy(invalidElement, this));
 
         this.el.noValidate = true;
-        this.$el.on('submit.' + widgetName, $.proxy(submitEvent, this, this.elements));
+        this.$el.on('submit.' + widgetName, $.proxy(submitForm, this));
         this.$el.on('reset.' + widgetName, $.proxy(resetForm, this));
     }
 
-    function validateElement(element) {
-        var type = element.getAttribute('type'),
-            support = Support.inputtypes[type],
-            required = Support.input.required ? element.required : isRequired(element),
-            match = $(element).data('match'),
-            check = {},
-            valid = true;
-
-        if (element.willValidate && support) {
-            valid = element.checkValidity();
-        } else if (required && !element.value.length) {
-            check = checkValidity.required(element);
-            valid = check.valid;
-        } else if (element.value.length) {
-            if (element.pattern) {
-                type = 'pattern';
-            }
-
-            if (checkValidity[type]) {
-                check = checkValidity[type](element);
-                valid = check.valid;
-            } else {
-                valid = true;
-            }
-        }
-
-        if (valid && match) {
-            check = checkValidity['match'](element, match);
-            valid = check.valid;
-        }
-
-        if (valid) {
-            console.log(valid);
-            $(element).trigger('valid');
-        } else if (check.message) {
-            $.data(element, 'validationMessage', check.message);
-            $(element).trigger('invalid');
-        }
-
-        return valid;
-    }
-
-    function submitEvent(elements) {
+    function bindElements() {
         /*jshint validthis:true */
 
-        this.isSubmit = true;
-        this.firstError = null;
+        this.elements.on({
+            'focus.validatrelement': bindEvents,
+            'blur.validatrelement': unbindEvents 
+        });
 
-        resetForm.call(this);
-        var valid = submitForm(elements);
-        
-
-        if (valid) {
-            return this.options.valid.call(this.el, this.el);
-        } else {
-            this.firstError.focus();
-        }
-
-        this.isSubmit = false;
-        this.firstError = null;
-
-        return valid;
+        $('input[type=radio]').on('click.validatrelement', function (e) {
+            validateElement(e.target);
+        });
     }
 
-    function submitForm (elements) {
+    function unbindElements() {
+        /*jshint validthis:true */
+
+        this.elements.off('.validatrelement');
+    }
+
+    function bindEvents (e) {
+        var target = e.target;
+
+        $(target).on({
+            'change.validatrinput': function () {
+                setTimeout(function () {
+                    validateElement(target);                
+                }, 1);
+            },
+            'blur.validatrinput': function () {
+                validateElement(target);                
+            },
+            'keyup.validatrinput': function () {
+                if (target.value.length) {
+                    validateElement(target);
+                }                
+            }
+        });
+    }
+
+    function unbindEvents(e) {
+        $(e.target).off('.validatrinput');
+    }
+
+    function validateElement(element) {
+        if (element.type === 'radio') {
+            var radio = $(document.getElementsByName(element.name)).filter('[required]');
+            if (radio.length) {
+                element = radio[0];
+            }
+        }
+
+        var $element = $(element),
+            type = element.getAttribute('type'),
+            required = Support.input.required ? element.required : isRequired(element),
+            check = {
+                valid: true
+            };
+
+
+        if (element.willValidate) {
+            check.valid = element.checkValidity();
+            
+            if (!check.valid) {
+                return false;
+            } 
+        } else {
+            if (required) {
+                check = Tests.required(element);
+            }   
+
+            if (check.valid && element.value.length && !Rules.boxes.test(type)) {
+                if (element.pattern) {
+                    type = 'pattern';
+                }
+
+                if (Tests[type]) {
+                    check = Tests[type](element);
+                }
+            }
+        }
+
+        if (check.valid) {
+            for (var test in CustomTests) {
+                if (CustomTests.hasOwnProperty(test) && $element.data(test)) {
+                    check = CustomTests[test](element);
+                    if (!check.valid) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (check.valid) {
+            $element.trigger('valid');
+            return true;
+        } 
+
+        $.data(element, 'validationMessage', check.message);
+        $element.trigger('invalid');
+        
+        return false;
+    }
+
+    function validateForm (elements) {
         var valid = true;        
 
         elements.each(function (i, element) {
@@ -392,8 +436,29 @@
         return valid;
     }
 
+    function submitForm() {
+        /*jshint validthis:true */
+
+        this.isSubmit = true;
+        resetForm.call(this);
+        var valid = validateForm(this.elements);
+
+        if (valid) {
+            return this.options.valid.call(this.el, this.el);
+        } else {
+            bindElements.call(this);
+            this.firstError.focus();
+        }
+
+        this.isSubmit = false;
+        return valid;
+    }
+
     function resetForm() {
         /*jshint validthis:true */
+
+        unbindElements.call(this);
+        this.firstError = false;
         this.$el.find('.validatr-message').remove();
     }
 
@@ -417,30 +482,7 @@
         return false;
     }
 
-    function focus(e) {
-        /*jshint validthis:true */
-
-        var target = e.target,
-            $target = $(target),
-            that = this;
-
-        $target.on(this.options.event + '.' + widgetName, debounce(function () {
-            if (target.value.length) {
-                validateElement(target);
-            }
-        }, this.options.delay));
-    }
-
-    function blur(e) {
-        /*jshint validthis:true */
-        var target = e.target,
-            $target = $(target);
-
-        $target.off(this.options.event + '.' + widgetName);
-        validateElement(target);
-    }
-
-    function invalid(e) {
+    function invalidElement(e) {
         /*jshint validthis:true */
 
         if (supressError) {
@@ -452,55 +494,61 @@
         var target = e.target,
             $target = $(target),
             msg = target.validationMessage || $.data(target, 'validationMessage'),
-            error;
+            options = this.options,
+            error = $(options.template.replace('{{message}}', msg));
 
-        if (!this.isSubmit || (this.isSubmit && !this.firstError)) {
-            error = $(this.options.template.replace('{{message}}', msg));
-            this.firstError = $target[this.options.insert](error);
-            this.options.position.call(this, error, $target);
+
+        if (this.isSubmit && !this.firstError) {
+            this.firstError = $target.after(error);
+            options.position.call(this, error, $target);
+            return;
+        }
+
+        if (!this.isSubmit || options.showall) {
+            validElement(e);
+            $target.after(error);
+            options.position.call(this, error, $target);
         }
     }
 
-    function clearError(e) {
-        $(e.target)
-            .next('.validatr-message').remove()
-            .end().prev('.validatr-message').remove();
+    function validElement(e) {
+        $(e.target).next('.validatr-message').remove();
     }
 
     function position(error, $target) {
         /*jshint validthis:true */
-
         error.css('position', 'absolute');
 
-        var offset = $target.offset();
+        var offset = $target.offset(),
+            location = $target.data('location') || this.options.location;
 
-        if (regex.topbottom.test(this.options.location)) {
+        if (Rules.topbottom.test(location)) {
             error.offset({left: offset.left});
 
-            if (this.options.location === 'top') {
+            if (location === 'top') {
                 error.offset({top: offset.top - error.outerHeight() - 2});
             }
 
-            if (this.options.location === 'bottom') {
+            if (location === 'bottom') {
                 error.offset({top: offset.top + error.outerHeight()});
             }            
-        } else if (regex.leftright.test(this.options.location)) {
-            error.offset({top: offset.top});
+        } else if (Rules.leftright.test(location)) {
+            error.offset({top: (offset.top + $target.outerHeight() / 2) - (error.outerHeight() / 2)});
 
-            if (this.options.location === 'left') {
+            if (location === 'left') {
                 error.offset({left: offset.left - error.outerWidth() - 2});
             }
 
-            if (this.options.location === 'right') {
+            if (location === 'right') {
                 error.offset({left: offset.left + $target.outerWidth() + 2});
             }            
         }        
     }
 
     /*! Inspired by jQuery UI - v1.9.2 - 2012-12-04
-    * http://jqueryui.com
-    * Copyright (c) 2012 jQuery Foundation and other contributors Licensed MIT 
-    */
+     * http://jqueryui.com
+     * Copyright (c) 2012 jQuery Foundation and other contributors Licensed MIT 
+     */
     $.fn[widgetName] = function(options) {
         var isMethod = typeof options === 'string',
             args = Array.prototype.slice.call(arguments, 1),
@@ -541,16 +589,12 @@
     };
 
     $.fn[widgetName].defualtOptions = {
-        event: 'keydown',
-        delay: 750,
-        insert: 'before',
-        location: 'bottom',
+        showall: false,
+        location: 'right',
         position: position,
         template: '<div>{{message}}</div>',
         theme: 'none',
-        valid: function () {
-            return true;
-        }
+        valid: $.noop
     };
 
     $[widgetName] = new Widget();
@@ -560,4 +604,4 @@
         return elem.textContent.indexOf(widgetName) >= 0;
     };
 
-}(this, jQuery));
+}(this, this.document, jQuery));
