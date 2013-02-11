@@ -224,31 +224,6 @@
         }
     },
 
-    /*! Underscore.js 1.4.4
-     * http://underscorejs.org
-     * (c) 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
-     * Underscore may be freely distributed under the MIT license.
-     */
-    debounce = function(func, wait, immediate) {
-        var timeout, result;
-        return function() {
-            var context = this, args = arguments;
-            var later = function() {
-                timeout = null;
-                if (!immediate) {
-                    result = func.apply(context, args);
-                }
-            };
-            var callNow = immediate && !timeout;
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-            if (callNow) {
-                result = func.apply(context, args);
-            }
-            return result;
-        };
-    },
-
     getNode = function (element) {
         if (element instanceof jQuery) {
             element = element[0];
@@ -404,8 +379,9 @@
         var $element = $(element),
             type = element.getAttribute('type'),
             required = Support.input.required ? element.required : isRequired(element),
-            check = {},
-            valid = true;
+            check = {
+                valid: true
+            };
 
 
         if (element.willValidate) {
@@ -419,7 +395,7 @@
                 check = Tests.required(element);
             }   
 
-            if (valid && element.value.length && !Rules.boxes.test(type)) {
+            if (check.valid && element.value.length && !Rules.boxes.test(type)) {
                 if (element.pattern) {
                     type = 'pattern';
                 }
@@ -548,26 +524,26 @@
         error.css('position', 'absolute');
 
         var offset = $target.offset(),
-            options = this.options;
+            location = $target.data('location') || this.options.location;
 
-        if (Rules.topbottom.test(options.location)) {
+        if (Rules.topbottom.test(location)) {
             error.offset({left: offset.left});
 
-            if (options.location === 'top') {
+            if (location === 'top') {
                 error.offset({top: offset.top - error.outerHeight() - 2});
             }
 
-            if (options.location === 'bottom') {
+            if (location === 'bottom') {
                 error.offset({top: offset.top + error.outerHeight()});
             }            
-        } else if (Rules.leftright.test(options.location)) {
+        } else if (Rules.leftright.test(location)) {
             error.offset({top: (offset.top + $target.outerHeight() / 2) - (error.outerHeight() / 2)});
 
-            if (options.location === 'left') {
+            if (location === 'left') {
                 error.offset({left: offset.left - error.outerWidth() - 2});
             }
 
-            if (options.location === 'right') {
+            if (location === 'right') {
                 error.offset({left: offset.left + $target.outerWidth() + 2});
             }            
         }        
@@ -626,7 +602,7 @@
     };
 
     $[widgetName] = new Widget();
-    
+
     // Custom selector.
     $.expr[':'][widgetName] = function(elem) {
         return elem.textContent.indexOf(widgetName) >= 0;
