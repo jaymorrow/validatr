@@ -6,13 +6,13 @@
  * Licensed under the MIT license.
  */
 
-(function(window, $, undefined) {
+(function(window, document, $, undefined) {
     "use strict";
 
     /*! Modernizr 2.6.2 (Custom Build) | MIT & BSD
      * Build: http://modernizr.com/download/#-input-inputtypes
      */
-    var Support = (function( window, document, undefined ) {
+    var Support = (function() {
 
         var Modernizr = {},
 
@@ -79,49 +79,9 @@
         inputElem = null;
 
         return Modernizr;
-    })(window, window.document),
-
-    /*! Underscore.js 1.4.4
-     * http://underscorejs.org
-     * (c) 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
-     * Underscore may be freely distributed under the MIT license.
-     */
-    debounce = function(func, wait, immediate) {
-        var timeout, result;
-        return function() {
-            var context = this, args = arguments;
-            var later = function() {
-                timeout = null;
-                if (!immediate) {
-                    result = func.apply(context, args);
-                }
-            };
-            var callNow = immediate && !timeout;
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-            if (callNow) {
-                result = func.apply(context, args);
-            }
-            return result;
-        };
-    },
-
-    uiExists = $.ui !== undefined,
-
-    widgetName = 'validatr',
-
-    theme = {
-        base: widgetName + '-message ',
-        bootstrap: 'alert alert-error',
-        jqueryui: 'ui-state-error ui-corner-all',
-        none: widgetName + '-error'
-    },
-
-    submit = 'button, input[type=submit], input[type=button], input[type=reset]',
-
-    supressError = false,
-
-    regex = {
+    })(),
+    
+    Rules = {
         boxes: /checkbox|radio/i,
         color: /^#[0-9A-F]{6}$/i,
         date: /^(0[1-9]|1[012])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/,
@@ -131,8 +91,8 @@
         topbottom: /top|bottom/i,
         url: /https?:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
     },
-
-    checkValidity = {
+    
+    Tests = {
         checkbox: function (element) {
             return {
                 valid: element.checked,
@@ -142,38 +102,22 @@
 
         color: function (element) {
             return {
-                valid: regex.color.test(element.value),
+                valid: Rules.color.test(element.value),
                 message: 'Please enter a color in the format #xxxxxx'
             };
         },
 
         date: function (element) {
             return {
-                valid: regex.date.test(element.value),
+                valid: Rules.date.test(element.value),
                 message: 'Please enter a date in the format mm/dd/yyyy'
             };
         },
 
         email: function (element) {           
             return {
-                valid: regex.email.test(element.value),
+                valid: Rules.email.test(element.value),
                 message: 'Please enter an email address.'
-            };
-        },
-
-        match: function (element, match) {
-            var source = document.getElementById(match) || document.getElementsByName(match)[0];
-
-            if (!source) {
-                return {
-                    valid: false,
-                    message: "'" + match + "' can not be found"
-                };
-            }
-
-            return {
-                valid: element.value === source.value,
-                message: "'" + element.name + "' does not equal '" + source.name +"'"
             };
         },
 
@@ -222,7 +166,7 @@
         },
 
         required: function (element) {
-            if (regex.boxes.test(element.type)) {
+            if (Rules.boxes.test(element.type)) {
                 return this[element.type](element);
             }
 
@@ -240,17 +184,69 @@
 
         time: function (element) {
             return {
-                valid: regex.time.test(element.value),
+                valid: Rules.time.test(element.value),
                 message: 'Please enter a time in the format hh:mm:ss'
             };
         },
 
         url: function (element) {
             return {
-                valid: regex.url.test(element.value),
+                valid: Rules.url.test(element.value),
                 message: 'Please enter a url.'
             };
         }
+    },
+
+    CustomTests = {
+        match: function (element) {
+            var match = $(element).data('match'),
+                source = document.getElementById(match) || document.getElementsByName(match)[0];
+
+            if (!source) {
+                return {
+                    valid: false,
+                    message: "'" + match + "' can not be found"
+                };
+            }
+
+            $(source)
+                .off('valid.validatrinput')
+                .on('valid.validatrinput', function () {
+                    if (element.value === source.value) {
+                        validateElement(element);
+                    }
+                });
+
+            return {
+                valid: element.value === source.value,
+                message: "'" + element.name + "' does not equal '" + source.name +"'"
+            };
+        }
+    },
+
+    /*! Underscore.js 1.4.4
+     * http://underscorejs.org
+     * (c) 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
+     * Underscore may be freely distributed under the MIT license.
+     */
+    debounce = function(func, wait, immediate) {
+        var timeout, result;
+        return function() {
+            var context = this, args = arguments;
+            var later = function() {
+                timeout = null;
+                if (!immediate) {
+                    result = func.apply(context, args);
+                }
+            };
+            var callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) {
+                result = func.apply(context, args);
+            }
+            return result;
+        };
     },
 
     getNode = function (element) {
@@ -260,12 +256,34 @@
         return element;
     },
 
-    /*
-     * Widget
-     */
+    widgetName = 'validatr',
+
+    theme = {
+        base: widgetName + '-message ',
+        bootstrap: 'alert alert-error',
+        jqueryui: 'ui-state-error ui-corner-all',
+        none: widgetName + '-error'
+    },
+
+    submit = 'button, input[type=submit], input[type=button], input[type=reset]',
+
+    supressError = false,
+
+    // Validatr
     Widget = function () {};
 
     Widget.prototype = {
+
+        addTest: function (name) {
+            var isObject = typeof name !== 'string',
+                args = Array.prototype.slice.call(arguments, 1)[0];
+
+            if (isObject) {
+                $.extend(CustomTests, name);
+            } else {
+                CustomTests[name] = args;
+            }
+        },
 
         getElements: function (form) {
             if (this.elements) {
@@ -383,51 +401,53 @@
             }
         }
 
-        var type = element.getAttribute('type'),
+        var $element = $(element),
+            type = element.getAttribute('type'),
             required = Support.input.required ? element.required : isRequired(element),
-            match = $(element).data('match'),
             check = {},
             valid = true;
 
 
-        if (!element.willValidate) {
-            valid = element.checkValidity();
+        if (element.willValidate) {
+            check.valid = element.checkValidity();
             
-            if (!valid) {
+            if (!check.valid) {
                 return false;
             } 
         } else {
             if (required) {
-                check = checkValidity.required(element);
-                valid = check.valid;
+                check = Tests.required(element);
             }   
 
-            if (valid && element.value.length && !regex.boxes.test(type)) {
+            if (valid && element.value.length && !Rules.boxes.test(type)) {
                 if (element.pattern) {
                     type = 'pattern';
                 }
 
-                if (checkValidity[type]) {
-                    check = checkValidity[type](element);
-                    valid = check.valid;
-                } else {
-                    valid = true;
+                if (Tests[type]) {
+                    check = Tests[type](element);
                 }
             }
         }
 
-        if (valid && match) {
-            check = checkValidity['match'](element, match);
-            valid = check.valid;
+        if (check.valid) {
+            for (var test in CustomTests) {
+                if (CustomTests.hasOwnProperty(test) && $element.data(test)) {
+                    check = CustomTests[test](element);
+                    if (!check.valid) {
+                        break;
+                    }
+                }
+            }
         }
 
-        if (valid) {
-            $(element).trigger('valid');
+        if (check.valid) {
+            $element.trigger('valid');
             return true;
         } 
 
         $.data(element, 'validationMessage', check.message);
-        $(element).trigger('invalid');
+        $element.trigger('invalid');
         
         return false;
     }
@@ -530,7 +550,7 @@
         var offset = $target.offset(),
             options = this.options;
 
-        if (regex.topbottom.test(options.location)) {
+        if (Rules.topbottom.test(options.location)) {
             error.offset({left: offset.left});
 
             if (options.location === 'top') {
@@ -540,8 +560,8 @@
             if (options.location === 'bottom') {
                 error.offset({top: offset.top + error.outerHeight()});
             }            
-        } else if (regex.leftright.test(options.location)) {
-            error.offset({top: offset.top});
+        } else if (Rules.leftright.test(options.location)) {
+            error.offset({top: (offset.top + $target.outerHeight() / 2) - (error.outerHeight() / 2)});
 
             if (options.location === 'left') {
                 error.offset({left: offset.left - error.outerWidth() - 2});
@@ -554,9 +574,9 @@
     }
 
     /*! Inspired by jQuery UI - v1.9.2 - 2012-12-04
-    * http://jqueryui.com
-    * Copyright (c) 2012 jQuery Foundation and other contributors Licensed MIT 
-    */
+     * http://jqueryui.com
+     * Copyright (c) 2012 jQuery Foundation and other contributors Licensed MIT 
+     */
     $.fn[widgetName] = function(options) {
         var isMethod = typeof options === 'string',
             args = Array.prototype.slice.call(arguments, 1),
@@ -606,10 +626,10 @@
     };
 
     $[widgetName] = new Widget();
-
+    
     // Custom selector.
     $.expr[':'][widgetName] = function(elem) {
         return elem.textContent.indexOf(widgetName) >= 0;
     };
 
-}(this, jQuery));
+}(this, this.document, jQuery));
