@@ -75,9 +75,16 @@
     Rules = {
         boxes: /checkbox|radio/i,
         color: /^#[0-9A-F]{6}$/i,
+        date: {
+            dd: '(0[1-9]|[12][0-9]|3[01])',
+            mm: '(0[1-9]|1[012])',
+            yy: '(\\d{4})'
+        },
         email: /^[a-zA-Z0-9.!#$%&’*+\/=?\^_`{|}~\-]+@[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)*$/,
         isoDate: /^(\d{4})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/,
         leftright: /left|right/i,
+        separators: /(\/|\-|\.)/g,
+        separatorsNoGroup: /\/|\-|\./g,
         time: /^([01][0-9]|2[0-3])(:([0-5][0-9])){2}$/,
         topbottom: /top|bottom/i,
         url: /^\s*https?:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?\s*$/
@@ -100,12 +107,12 @@
 
         date: function (element) {
             var $element = $(element),
-                value = parseISODate(element.value),
+                value = Support.inputtypes.date ? parseISODate(element.value) : parseDate(element),
                 min = $element.attr('min') ? parseISODate($element.attr('min')) : false,
                 max = $element.attr('max') ? parseISODate($element.attr('max')) : false,
                 step = isNaN($element.attr('step')) ? false : parseInt($element.attr('step'), 10);
             
-            return minMax(value, min, max, step, 'date');
+            return minMax.call(element, value, min, max, step, 'date');
         },
 
         email: function (element) {   
@@ -143,7 +150,7 @@
                 min = 0;
             }
 
-            return minMax(value, min, max, step, 'number');
+            return minMax.call(element, value, min, max, step, 'number');
         },
 
         pattern: function (element) {
@@ -191,6 +198,18 @@
     },
 
     CustomTests = {
+        as: function (element) {
+            if (element.type !== 'text') {
+                throw new Error('element must have a type of text');
+            }
+
+            var type = $(element).data('as');
+
+            if (Tests[type]) {
+                return Tests[type](element);
+            }
+        },
+
         match: function (element) {
             var match = $(element).data('match'),
                 source = document.getElementById(match) || document.getElementsByName(match)[0];
@@ -217,6 +236,45 @@
         }
     },
 
+    indexOf = function (array, value) {
+        var index = -1,
+            length = array ? array.length : 0;
+
+
+        while (++index < length) {
+            if (array[index] === value) {
+                return index;
+            }
+        }
+
+        return -1;
+    },
+
+    parseDate = function (element) {
+        var format = $(element).data('format') || $[widgetName].dateFormat,
+            split = format.split(Rules.separatorsNoGroup),
+            dateSplit = element.value.split(Rules.separatorsNoGroup),
+            isoSplit = 'yy-mm-dd'.split('-'),
+            rule = format.replace(Rules.separators, '\\$1')
+                        .replace('yy', Rules.date.yy)
+                        .replace('mm', Rules.date.mm)
+                        .replace('dd', Rules.date.dd),
+            index = -1,
+            length = isoSplit.length,
+            iso = [];
+   
+        rule = new RegExp(rule);
+        if (!rule.test(element.value)) {
+            return false;
+        }
+
+        while (++index < length) {
+            iso[index] = dateSplit[ indexOf(split, isoSplit[index]) ];
+        }
+        
+        return parseISODate(iso.join('-'));
+    },
+
     parseISODate = function (dateString) {
         if (!Rules.isoDate.test(dateString)) {
             return false;
@@ -226,20 +284,36 @@
         return new Date(parseInt(date[1], 10), parseInt(date[2], 10) - 1, parseInt(date[3], 10));
     },
 
+    formatISODate = function (dateObj, element) {
+        var date = dateObj.getDate(),
+            month = dateObj.getMonth() + 1,
+            year = dateObj.getFullYear(),
+            dateString = ($(element).data('format') || $[widgetName].dateFormat).replace('mm', month).replace('yy', year).replace('dd', date);
+
+        return dateString;
+    },
+
     minMax = function (value, min, max, step, type) {
         var result = true,
-            msg = 'Please enter a ' + type;
+            msg = 'Please enter a ' + type,
+            minString = min,
+            maxString = max;
+
+        if (type === 'date') {
+            minString = formatISODate(min, this);
+            maxString = formatISODate(max, this);
+        }
 
         if (value !== false) {
             if (min !== false && max !== false) {
                 result = value >= min && value <= max;
-                msg = 'Please enter a ' + type + ' greater than or equal to ' + min + ' and less than or equal to ' + max + '.';
+                msg = 'Please enter a ' + type + ' greater than or equal to ' + minString + '<br /> and less than or equal to ' + maxString + '.';
             } else if (min !== false) {
                 result = value >= min;
-                msg = 'Please enter a ' + type + ' greater than or equal to ' + min + '.';
+                msg = 'Please enter a ' + type + ' greater than or equal to ' + minString + '.';
             } else if (max !== false) {
                 result = value <= max;
-                msg = 'Please enter a ' + type + ' less than or equal to ' + max + '.';
+                msg = 'Please enter a ' + type + ' less than or equal to ' + maxString + '.';
             }
 
             if (result && step !== false) {
@@ -274,10 +348,14 @@
 
     supressError = false,
 
+    dateFormat = 'mm/dd/yy',
+
     // Validatr
     Widget = function () {};
 
     Widget.prototype = {
+
+        dateFormat: dateFormat,
 
         addTest: function (name) {
             var isObject = typeof name !== 'string',
