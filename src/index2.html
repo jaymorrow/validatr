@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Validatr</title>
+    <style>
+    .field {
+        margin-bottom: 10px;
+    }
+
+    label {
+        display: inline-block;
+        width: 100px;
+    }
+    </style>
+    <link rel="stylesheet" href="css/validatr.css"> 
+    <script src="../libs/jquery/jquery.js"></script>
+    <script src="js/validatr.js"></script>
+    <script>
+    $(function () {
+        $('form').validatr();
+    });
+    </script>
+</head>
+<body>
+    <form action="./">
+        <div class="field"><label for="color">Color</label><input type="color" id="color" name="color"></div>
+        <div class="field"><label for="date">Date</label><input type="date" id="date" name="date"></div>
+        <div class="field"><label for="email">Email</label><input type="email" id="email" name="email"></div>
+        <div class="field"><label for="email2">Email Match</label><input type="email" id="email2" name="email2" data-match="email"></div>
+        <div class="field"><label for="number">Number</label><input type="number" id='number' name="number"></div>
+        <div class="field"><label for="range">Range</label><input type="range" id="range" min="1" max="10" name="range"></div>
+        <div class="field"><label for="tel">Tel</label><input type="tel" id="tel" pattern="12345" name="tel"></div>
+        <div class="field"><label for="text">Text</label><input type="text" id="text" name="text"></div>  
+        <div class="field"><label for="time">Time</label><input type="time" id="time" name="time"></div>  
+        <div class="field"><label for="url">Url</label><input type="url" id="url" name="url"></div>  
+        <div class="field"><label for="password">Password</label><input type="password" id="password" name="password"></div>
+        <div class="field"><label for="checkbox">Checkbox</label><input type="checkbox" id="checkbox" name="checkbox" value="1"></div>
+        <div class="field"><label for="select">Select</label><select name="select" id="select"><option value="">Empty</option><option value="1">First</option><option value="2">Second</option></select></div>
+        <div class="field"><label for="selectmultiple">Select Multiple</label><select name="selectmultiple" id="selectmultiple" multiple><option value="1">First</option><option value="2">Second</option></select></div>
+        <div class="field">
+            <div><input type="radio" id="radio1" name="radio" value="1" data-location="top" required>
+                        <label for="radio1">Radio 1</label></div>
+            <div><input type="radio" id="radio2" name="radio" value="2">
+                        <label for="radio2">Radio 2</label></div>
+            <div><input type="radio" id="radio3" name="radio" value="3">
+                        <label for="radio3">Radio 3</label></div>
+        </div>
+        <input type="reset">
+        <input type="submit" value="Submit">    
+    </form>
+</body>
+</html>
