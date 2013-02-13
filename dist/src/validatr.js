@@ -1,9 +1,11 @@
-/*! Validatr - v0.1.0 - 2013-02-11
+/*! Validatr - v0.1.1 - 2013-02-12
 * https://github.com/jaymorrow/validatr
 * Copyright (c) 2013 Jay Morrow; Licensed MIT */
 
 (function(window, document, $, undefined) {
     "use strict";
+
+    var l = console.log;
 
     /*! Modernizr 2.6.2 (Custom Build) | MIT & BSD
      * Build: http://modernizr.com/download/#-input-inputtypes
@@ -18,21 +20,9 @@
 
         inputElem  = document.createElement('input'),
 
-        tests = {},
+        inputs = {};
 
-        inputs = {},
-
-        attrs = {};
-
-        Modernizr['input'] = (function( props ) {
-            for ( var i = 0, len = props.length; i < len; i++ ) {
-                attrs[ props[i] ] = !!(props[i] in inputElem);
-            }
-            if (attrs.list){
-                attrs.list = !!(document.createElement('datalist') && window.HTMLDataListElement);
-            }
-            return attrs;
-        })('autocomplete autofocus list placeholder max min multiple pattern required step'.split(' '));
+        Modernizr['required'] = ('required' in inputElem);
 
         Modernizr['inputtypes'] = (function(props) {
 
@@ -69,25 +59,28 @@
                 inputs[ props[i] ] = !!bool;
             }
 
+            inputs.text = true;
+            inputs.password = true;
+
             return inputs;
         })('search tel url email datetime date month week time datetime-local number range color'.split(' '));
 
         inputElem = null;
 
         return Modernizr;
-    })(),
-    
+    }()),
+
     Rules = {
         boxes: /checkbox|radio/i,
         color: /^#[0-9A-F]{6}$/i,
-        date: /^(0[1-9]|1[012])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/,
         email: /^[a-zA-Z0-9.!#$%&’*+\/=?\^_`{|}~\-]+@[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)*$/,
+        isoDate: /^(\d{4})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/,
         leftright: /left|right/i,
         time: /^([01][0-9]|2[0-3])(:([0-5][0-9])){2}$/,
         topbottom: /top|bottom/i,
-        url: /https?:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+        url: /^\s*https?:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?\s*$/
     },
-    
+
     Tests = {
         checkbox: function (element) {
             return {
@@ -104,43 +97,51 @@
         },
 
         date: function (element) {
-            return {
-                valid: Rules.date.test(element.value),
-                message: 'Please enter a date in the format mm/dd/yyyy'
-            };
+            var $element = $(element),
+                value = parseISODate(element.value),
+                min = $element.attr('min') ? parseISODate($element.attr('min')) : false,
+                max = $element.attr('max') ? parseISODate($element.attr('max')) : false,
+                step = isNaN($element.attr('step')) ? false : parseInt($element.attr('step'), 10);
+            
+            return minMax(value, min, max, step, 'date');
         },
 
-        email: function (element) {           
+        email: function (element) {   
+            var valid = true,
+                msg = 'Please enter an email address.';
+
+            if (element.multiple) {
+                var values = element.value.split(',');
+
+                $.each(values, function (i, value) {
+                    if (!Rules.email.test(value)) {
+                        valid = false;
+                        msg = 'Please enter a comma separated list of email addresses.';
+                        return;
+                    }
+                });
+            } else {
+                valid = Rules.email.test(element.value);
+            }
+
             return {
-                valid: Rules.email.test(element.value),
-                message: 'Please enter an email address.'
+                valid: valid,
+                message: msg
             };
         },
 
         number: function (element) {
             var $element = $(element),
                 value = isNaN(parseFloat(element.value)) ? false : parseFloat(element.value),
-                min = value !== false ? isNaN($element.attr('min')) ? false : parseFloat($element.attr('min')) : value,
-                max = value !== false ? isNaN($element.attr('max')) ? false : parseFloat($element.attr('max')) : value,
-                result = true,
-                msg = 'Please enter a number';
+                min = value !== false ? isNaN($element.attr('min')) ? false : parseFloat($element.attr('min')) : false,
+                max = value !== false ? isNaN($element.attr('max')) ? false : parseFloat($element.attr('max')) : false,
+                step = value !== false ? isNaN($element.attr('step')) ? false : parseFloat($element.attr('step')) : false;
 
-
-            if (min !== false && max !== false) {
-                result = value >= min && value <= max;
-                msg = 'Please enter a number greater than or equal to ' + min + ' and less than or equal to ' + max + '.';
-            } else if (min !== false) {
-                result = value >= min;
-                msg = 'Please enter a number greater than or equal to ' + min + '.';
-            } else if (max !== false) {
-                result = value <= max;
-                msg = 'Please enter a number less than or equal to ' + max + '.';
+            if (step !== false && min === false) {
+                min = 0;
             }
 
-            return {
-                valid: value !== false && result,
-                message: msg
-            };
+            return minMax(value, min, max, step, 'number');
         },
 
         pattern: function (element) {
@@ -169,12 +170,6 @@
             return {
                 valid: element.value.length,
                 message: element.nodeName.toLowerCase() === 'select' ? 'Please select an item in the list.' : 'Please fill out this field.'
-            };
-        },
-
-        text: function () {
-            return {
-                valid: true
             };
         },
 
@@ -218,6 +213,43 @@
                 message: "'" + element.name + "' does not equal '" + source.name +"'"
             };
         }
+    },
+
+    parseISODate = function (dateString) {
+        if (!Rules.isoDate.test(dateString)) {
+            return false;
+        }
+
+        var date = Rules.isoDate.exec(dateString);
+        return new Date(parseInt(date[1], 10), parseInt(date[2], 10) - 1, parseInt(date[3], 10));
+    },
+
+    minMax = function (value, min, max, step, type) {
+        var result = true,
+            msg = 'Please enter a ' + type;
+
+        if (value !== false) {
+            if (min !== false && max !== false) {
+                result = value >= min && value <= max;
+                msg = 'Please enter a ' + type + ' greater than or equal to ' + min + ' and less than or equal to ' + max + '.';
+            } else if (min !== false) {
+                result = value >= min;
+                msg = 'Please enter a ' + type + ' greater than or equal to ' + min + '.';
+            } else if (max !== false) {
+                result = value <= max;
+                msg = 'Please enter a ' + type + ' less than or equal to ' + max + '.';
+            }
+
+            if (result && step !== false) {
+                result = (value - min) % step === 0;
+                msg = 'Invalid ' + type;
+            }
+        }
+
+        return {
+            valid: value !== false && result,
+            message: msg
+        };    
     },
 
     getNode = function (element) {
@@ -374,15 +406,14 @@
 
         var $element = $(element),
             type = element.getAttribute('type'),
-            required = Support.input.required ? element.required : isRequired(element),
+            required = Support.required ? element.required : isRequired(element),
             check = {
                 valid: true
             };
 
-
-        if (element.willValidate) {
+        if (Support.inputtypes[type] && element.checkValidity) {
             check.valid = element.checkValidity();
-            
+
             if (!check.valid) {
                 return false;
             } 
@@ -417,7 +448,7 @@
             $element.trigger('valid');
             return true;
         } 
-
+        
         $.data(element, 'validationMessage', check.message);
         $element.trigger('invalid');
         
@@ -438,7 +469,6 @@
 
     function submitForm() {
         /*jshint validthis:true */
-
         this.isSubmit = true;
         resetForm.call(this);
         var valid = validateForm(this.elements);
@@ -447,7 +477,7 @@
             return this.options.valid.call(this.el, this.el);
         } else {
             bindElements.call(this);
-            this.firstError.focus();
+            //this.firstError.focus();
         }
 
         this.isSubmit = false;

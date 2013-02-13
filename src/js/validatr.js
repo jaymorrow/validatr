@@ -105,7 +105,7 @@
                 value = parseISODate(element.value),
                 min = $element.attr('min') ? parseISODate($element.attr('min')) : false,
                 max = $element.attr('max') ? parseISODate($element.attr('max')) : false,
-                step = isNaN($element.attr('step')) ? false : parseInt($element.attr('step'));
+                step = isNaN($element.attr('step')) ? false : parseInt($element.attr('step'), 10);
             
             return minMax(value, min, max, step, 'date');
         },
