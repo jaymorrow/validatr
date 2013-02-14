@@ -31,7 +31,7 @@
     </script>
 </head>
 <body>
-    <form action="./">
+    <form id="colorform" action="./">
         <div class="field"><label for="color">Color</label><input type="color" id="color" name="color" required></div>
         <input type="reset">
         <input type="submit" value="Submit">    
@@ -47,7 +47,7 @@
         <input type="submit" value="Submit">    
     </form>
     <form action="./">
-        <div class="field"><label for="email">Email</label><input type="email" id="email" name="email" required></div>
+        <div class="field"><label for="email">Email</label><input type="email" id="email" name="email" multiple required></div>
         <input type="reset">
         <input type="submit" value="Submit">    
     </form>
@@ -82,13 +82,13 @@
         <input type="submit" value="Submit">    
     </form>
     <form action="./">
-        <div class="field"><label for="checkbox">Checkbox</label><input type="checkbox" id="checkbox" name="checkbox" value="1"></div>
+        <div class="field"><label for="checkbox">Checkbox</label><input type="checkbox" id="checkbox" name="checkbox" value="1" required></div>
         <input type="reset">
         <input type="submit" value="Submit">    
     </form>
     <form action="./">
-        <div class="field"><label for="select">Select</label><select name="select" id="select"><option value="">Empty</option><option value="1">First</option><option value="2">Second</option></select></div>
-        <div class="field"><label for="selectmultiple">Select Multiple</label><select name="selectmultiple" id="selectmultiple" multiple><option value="1">First</option><option value="2">Second</option></select></div>
+        <div class="field"><label for="select">Select</label><select required name="select" id="select"><option value="">Empty</option><option value="1">First</option><option value="2">Second</option></select></div>
+        <div class="field"><label for="selectmultiple">Select Multiple</label><select required name="selectmultiple" id="selectmultiple" multiple><option value="1">First</option><option value="2">Second</option></select></div>
         <input type="reset">
         <input type="submit" value="Submit">    
     </form>

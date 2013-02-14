@@ -24,7 +24,10 @@
 
         inputs = {};
 
-        Modernizr['required'] = ('required' in inputElem);
+        Modernizr['attributes'] = {
+            multiple: !!('multiple' in inputElem),
+            required: !!('required' in inputElem)
+        };
 
         Modernizr['inputtypes'] = (function(props) {
 
@@ -117,9 +120,10 @@
 
         email: function (element) {   
             var valid = true,
-                msg = 'Please enter an email address.';
+                msg = 'Please enter an email address.',
+                multiple = Support.attributes.multiple ? element.multiple : $(element).is('[multiple]');
 
-            if (element.multiple) {
+            if (multiple) {
                 var values = element.value.split(',');
 
                 $.each(values, function (i, value) {
@@ -235,6 +239,20 @@
             };
         }
     },
+
+    KeyCodes = [
+        16, // shift
+        17, // control
+        18, // alt
+        19, // pause/break
+        20, // caps lock
+        33, // page up
+        34, // page down
+        35, // end
+        36, // home
+        37, // left arrow
+        39  //right arrow
+    ],
 
     indexOf = function (array, value) {
         var index = -1,
@@ -373,11 +391,16 @@
                 return this.elements;
             }
 
-            return $(form)
+            var elements = $(form)
                 .map(function () {
                     return this.elements ? $.makeArray(this.elements) : $.makeArray($(this).find('input, textarea, select'));
                 })
                 .not(submit);
+
+            if (form.id) {
+                elements = elements.add($('[for="' + form.id + '"]'));
+            }
+            return elements;
         },
 
         validateElement: function (element) {
@@ -441,7 +464,7 @@
             'blur.validatrelement': unbindEvents 
         });
 
-        $('input[type=radio]').on('click.validatrelement', function (e) {
+        $('input[type=radio], input[type=checkbox]').on('click.validatrelement', function (e) {
             validateElement(e.target);
         });
     }
@@ -453,19 +476,23 @@
     }
 
     function bindEvents (e) {
-        var target = e.target;
+        var target = e.target,
+            $target = target;
 
-        $(target).on({
-            'change.validatrinput': function () {
+        if (target.nodeName.toLowerCase() === 'select') {
+            $target.on('change.validatrinput', function () {
                 setTimeout(function () {
                     validateElement(target);                
                 }, 1);
-            },
+            })
+        }
+
+        $(target).on({
             'blur.validatrinput': function () {
                 validateElement(target);                
             },
-            'keyup.validatrinput': function () {
-                if (target.value.length) {
+            'keyup.validatrinput': function (event) {
+                if (target.value.length && indexOf(KeyCodes, event.keyCode) === -1) {
                     validateElement(target);
                 }                
             }
@@ -486,7 +513,7 @@
 
         var $element = $(element),
             type = element.getAttribute('type'),
-            required = Support.required ? element.required : isRequired(element),
+            required = Support.attributes.required ? element.required : $(element).is('[required]'),
             check = {
                 valid: true
             };
@@ -569,27 +596,7 @@
 
         unbindElements.call(this);
         this.firstError = false;
-        this.$el.find('.validatr-message').remove();
-    }
-
-    function isRequired(element) {
-        if (element.required) {
-            return element.required === 'true';
-        }
-
-        var attrs = element.attributes,
-            length = attrs.length,
-            x = 0;
-
-        for (x; x < length; x += 1) {
-            if (attrs[x].name === 'required') {
-                element.required = "true";
-                return true;
-            }
-        }
-
-        element.required = "false";
-        return false;
+        this.elements.next('.validatr-message').remove();
     }
 
     function invalidElement(e) {
