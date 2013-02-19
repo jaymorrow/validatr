@@ -81,7 +81,7 @@
         date: {
             dd: '(0[1-9]|[12][0-9]|3[01])',
             mm: '(0[1-9]|1[012])',
-            yy: '(\\d{4})'
+            yyyy: '(\\d{4})'
         },
         email: /^[a-zA-Z0-9.!#$%&’*+\/=?\^_`{|}~\-]+@[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)*$/,
         isoDate: /^(\d{4})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/,
@@ -272,9 +272,9 @@
         var format = $(element).data('format') || $[widgetName].dateFormat,
             split = format.split(Rules.separatorsNoGroup),
             dateSplit = element.value.split(Rules.separatorsNoGroup),
-            isoSplit = 'yy-mm-dd'.split('-'),
+            isoSplit = 'yyyy-mm-dd'.split('-'),
             rule = format.replace(Rules.separators, '\\$1')
-                        .replace('yy', Rules.date.yy)
+                        .replace('yyyy', Rules.date.yyyy)
                         .replace('mm', Rules.date.mm)
                         .replace('dd', Rules.date.dd),
             index = -1,
@@ -306,7 +306,7 @@
         var date = dateObj.getDate(),
             month = dateObj.getMonth() + 1,
             year = dateObj.getFullYear(),
-            dateString = ($(element).data('format') || $[widgetName].dateFormat).replace('mm', month).replace('yy', year).replace('dd', date);
+            dateString = ($(element).data('format') || $[widgetName].dateFormat).replace('mm', month).replace('yyyy', year).replace('dd', date);
 
         return dateString;
     },
@@ -318,8 +318,8 @@
             maxString = max;
 
         if (type === 'date') {
-            minString = formatISODate(min, this);
-            maxString = formatISODate(max, this);
+            minString = min && formatISODate(min, this);
+            maxString = max && formatISODate(max, this);
         }
 
         if (value !== false) {
@@ -366,7 +366,7 @@
 
     supressError = false,
 
-    dateFormat = 'mm/dd/yy',
+    dateFormat = 'mm/dd/yyyy',
 
     // Validatr
     Widget = function () {};
@@ -382,6 +382,9 @@
             if (isObject) {
                 $.extend(CustomTests, name);
             } else {
+                if (!args) {
+                    throw new Error("You must include a callback function");
+                }
                 CustomTests[name] = args;
             }
         },
@@ -484,7 +487,7 @@
                 setTimeout(function () {
                     validateElement(target);                
                 }, 1);
-            })
+            });
         }
 
         $(target).on({
@@ -542,7 +545,7 @@
 
         if (check.valid) {
             for (var test in CustomTests) {
-                if (CustomTests.hasOwnProperty(test) && $element.data(test)) {
+                if (CustomTests.hasOwnProperty(test) && $element.is('[data-' + test + ']')) {
                     check = CustomTests[test](element);
                     if (!check.valid) {
                         break;

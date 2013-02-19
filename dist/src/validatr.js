@@ -1,7 +1,6 @@
-/*! Validatr - v0.1.2 - 2013-02-12
+/*! Validatr - v0.1.2 - 2013-02-18
 * https://github.com/jaymorrow/validatr
 * Copyright (c) 2013 Jay Morrow; Licensed MIT */
-
 (function(window, document, $, undefined) {
     "use strict";
 
@@ -20,7 +19,10 @@
 
         inputs = {};
 
-        Modernizr['required'] = ('required' in inputElem);
+        Modernizr['attributes'] = {
+            multiple: !!('multiple' in inputElem),
+            required: !!('required' in inputElem)
+        };
 
         Modernizr['inputtypes'] = (function(props) {
 
@@ -74,7 +76,7 @@
         date: {
             dd: '(0[1-9]|[12][0-9]|3[01])',
             mm: '(0[1-9]|1[012])',
-            yy: '(\\d{4})'
+            yyyy: '(\\d{4})'
         },
         email: /^[a-zA-Z0-9.!#$%&’*+\/=?\^_`{|}~\-]+@[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)*$/,
         isoDate: /^(\d{4})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/,
@@ -113,9 +115,10 @@
 
         email: function (element) {   
             var valid = true,
-                msg = 'Please enter an email address.';
+                msg = 'Please enter an email address.',
+                multiple = Support.attributes.multiple ? element.multiple : $(element).is('[multiple]');
 
-            if (element.multiple) {
+            if (multiple) {
                 var values = element.value.split(',');
 
                 $.each(values, function (i, value) {
@@ -232,6 +235,20 @@
         }
     },
 
+    KeyCodes = [
+        16, // shift
+        17, // control
+        18, // alt
+        19, // pause/break
+        20, // caps lock
+        33, // page up
+        34, // page down
+        35, // end
+        36, // home
+        37, // left arrow
+        39  //right arrow
+    ],
+
     indexOf = function (array, value) {
         var index = -1,
             length = array ? array.length : 0;
@@ -247,12 +264,12 @@
     },
 
     parseDate = function (element) {
-        var format = $(element).data('format') || dateFormat,
+        var format = $(element).data('format') || $[widgetName].dateFormat,
             split = format.split(Rules.separatorsNoGroup),
             dateSplit = element.value.split(Rules.separatorsNoGroup),
-            isoSplit = 'yy-mm-dd'.split('-'),
+            isoSplit = 'yyyy-mm-dd'.split('-'),
             rule = format.replace(Rules.separators, '\\$1')
-                        .replace('yy', Rules.date.yy)
+                        .replace('yyyy', Rules.date.yyyy)
                         .replace('mm', Rules.date.mm)
                         .replace('dd', Rules.date.dd),
             index = -1,
@@ -284,7 +301,7 @@
         var date = dateObj.getDate(),
             month = dateObj.getMonth() + 1,
             year = dateObj.getFullYear(),
-            dateString = ($(element).data('format') || dateFormat).replace('mm', month).replace('yy', year).replace('dd', date);
+            dateString = ($(element).data('format') || $[widgetName].dateFormat).replace('mm', month).replace('yyyy', year).replace('dd', date);
 
         return dateString;
     },
@@ -296,8 +313,8 @@
             maxString = max;
 
         if (type === 'date') {
-            minString = formatISODate(min, this);
-            maxString = formatISODate(max, this);
+            minString = min && formatISODate(min, this);
+            maxString = max && formatISODate(max, this);
         }
 
         if (value !== false) {
@@ -344,12 +361,14 @@
 
     supressError = false,
 
-    dateFormat = 'mm/dd/yy',
+    dateFormat = 'mm/dd/yyyy',
 
     // Validatr
     Widget = function () {};
 
     Widget.prototype = {
+
+        dateFormat: dateFormat,
 
         addTest: function (name) {
             var isObject = typeof name !== 'string',
@@ -358,6 +377,9 @@
             if (isObject) {
                 $.extend(CustomTests, name);
             } else {
+                if (!args) {
+                    throw new Error("You must include a callback function");
+                }
                 CustomTests[name] = args;
             }
         },
@@ -367,11 +389,16 @@
                 return this.elements;
             }
 
-            return $(form)
+            var elements = $(form)
                 .map(function () {
                     return this.elements ? $.makeArray(this.elements) : $.makeArray($(this).find('input, textarea, select'));
                 })
                 .not(submit);
+
+            if (form.id) {
+                elements = elements.add($('[for="' + form.id + '"]'));
+            }
+            return elements;
         },
 
         validateElement: function (element) {
@@ -435,7 +462,7 @@
             'blur.validatrelement': unbindEvents 
         });
 
-        $('input[type=radio]').on('click.validatrelement', function (e) {
+        $('input[type=radio], input[type=checkbox]').on('click.validatrelement', function (e) {
             validateElement(e.target);
         });
     }
@@ -447,19 +474,23 @@
     }
 
     function bindEvents (e) {
-        var target = e.target;
+        var target = e.target,
+            $target = target;
 
-        $(target).on({
-            'change.validatrinput': function () {
+        if (target.nodeName.toLowerCase() === 'select') {
+            $target.on('change.validatrinput', function () {
                 setTimeout(function () {
                     validateElement(target);                
                 }, 1);
-            },
+            });
+        }
+
+        $(target).on({
             'blur.validatrinput': function () {
                 validateElement(target);                
             },
-            'keyup.validatrinput': function () {
-                if (target.value.length) {
+            'keyup.validatrinput': function (event) {
+                if (target.value.length && indexOf(KeyCodes, event.keyCode) === -1) {
                     validateElement(target);
                 }                
             }
@@ -480,7 +511,7 @@
 
         var $element = $(element),
             type = element.getAttribute('type'),
-            required = Support.required ? element.required : isRequired(element),
+            required = Support.attributes.required ? element.required : $(element).is('[required]'),
             check = {
                 valid: true
             };
@@ -509,7 +540,7 @@
 
         if (check.valid) {
             for (var test in CustomTests) {
-                if (CustomTests.hasOwnProperty(test) && $element.data(test)) {
+                if (CustomTests.hasOwnProperty(test) && $element.is('[data-' + test + ']')) {
                     check = CustomTests[test](element);
                     if (!check.valid) {
                         break;
@@ -563,27 +594,7 @@
 
         unbindElements.call(this);
         this.firstError = false;
-        this.$el.find('.validatr-message').remove();
-    }
-
-    function isRequired(element) {
-        if (element.required) {
-            return element.required === 'true';
-        }
-
-        var attrs = element.attributes,
-            length = attrs.length,
-            x = 0;
-
-        for (x; x < length; x += 1) {
-            if (attrs[x].name === 'required') {
-                element.required = "true";
-                return true;
-            }
-        }
-
-        element.required = "false";
-        return false;
+        this.elements.next('.validatr-message').remove();
     }
 
     function invalidElement(e) {
