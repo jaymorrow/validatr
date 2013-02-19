@@ -2,8 +2,10 @@
   "name": "validatr",
   "title": "Validatr",
   "description": "HTML5 form validation.",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "homepage": "https://github.com/jaymorrow/validatr",
+  "docs": "http://jaymorrow.github.com/validatr/",
+  "demo": "http://jaymorrow.github.com/validatr/",
   "author": {
     "name": "Jay Morrow",
     "email": "jay.m.morrow@gmail.com"
@@ -22,7 +24,7 @@
     }
   ],
   "dependencies": {
-    "jquery": "1.7.2"
+    "jquery": ">1.7.2"
   },
   "keywords": ["form", "validate", "HTML5", "validation", "input"]
 }
