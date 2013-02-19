@@ -15,7 +15,23 @@ module.exports = function(grunt) {
         
         // Task configuration.
         clean: {
-            files: ['dist']
+            files: ['dist', 'release']
+        },
+
+        compress: {
+            release: {
+                options: {
+                    archive: 'release/<%= pkg.name %>-<%= pkg.version %>.zip'
+                },
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'dist/',
+                        src: ['**'],
+                        dest: '<%= pkg.name %>'
+                    }
+                ]
+            }
         },
 
         concat: {
@@ -92,6 +108,7 @@ module.exports = function(grunt) {
 
     // These plugins provide necessary tasks.
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-jshint');
@@ -99,5 +116,5 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
 
     // Default task.
-    grunt.registerTask('default', ['jshint', 'clean', 'concat', 'cssmin', 'uglify']);
+    grunt.registerTask('default', ['jshint', 'clean', 'concat', 'cssmin', 'uglify', 'compress']);
 };
