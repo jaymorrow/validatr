@@ -1,0 +1,40 @@
+main {
+    display: block;
+    padding-top: 60px;
+    padding-bottom: 40px;
+}
+
+.hero-unit {
+    background-color: #fff;
+    padding: 20px 0;
+    margin-bottom: 0;
+}
+
+.sidebar-nav {
+    padding: 9px 0;
+}
+
+.btn [class^=icon-] {
+    margin-left: 6px;
+}
+
+table .align-middle {
+    vertical-align: middle;
+}
+
+section {
+    padding-top: 42px;
+}
+
+.nav .dropdown:hover .dropdown-menu {
+    display: block;
+    top: 96%;
+}
+
+footer {
+    padding: 20px 0;
+}
+
+.inline-block { 
+    display: inline-block;
+}
