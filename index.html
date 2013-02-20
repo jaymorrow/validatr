@@ -38,7 +38,7 @@
                 <ul class="nav">
                     <li><a href="#getting-started">Getting Started</a></li>                
                     <li><a href="#widget">Widget</a></li>                
-                    <li><a href="#types">Types</a></li>
+                    <li><a href="#fields">Fields</a></li>
                     <li><a href="#custom-tests">Custom Tests</a></li>
                     <li><a href="#license">License</a></li>              
                 </ul>
@@ -50,7 +50,7 @@
             <div class="hero-unit">
                 <h1><span aria-hidden="true" class="icon-checkbox-checked"></span> Validatr</h1>
                 <p>Cross Browser HTML5 Form Validation.</p>
-                <p><a href="assets/validatr-0.2.0.zip" class="btn btn-primary">Download <span aria-hidden="true" class="icon-cloud-download"></span></a> <a href="https://github.com/jaymorrow/validatr" class="btn">View <span aria-hidden="true" class="icon-github"></span></a> </p>
+                <p><a href="assets/validatr.zip" class="btn btn-primary">Download <span aria-hidden="true" class="icon-cloud-download"></span></a> <a href="https://github.com/jaymorrow/validatr" class="btn">View <span aria-hidden="true" class="icon-github"></span></a> </p>
             </div>
         </div>
         <hr>
@@ -113,7 +113,7 @@ jQuery(function ($) {
                             <td><code>location</code></td>
                             <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String" target="_blank">String</a></td>
                             <td>right</td>
-                            <td>The location of tde error message in relation to the input. Possible values are <code>left</code>, <code>right</code>, <code>top</code>, and <code>bottom</code>.</th>
+                            <td>The location of the error message in relation to the input. Possible values are <code>left</code>, <code>right</code>, <code>top</code>, and <code>bottom</code>.</th>
                         </tr>
                         <tr>
                             <td><code>position</code></td>
@@ -145,7 +145,7 @@ jQuery(function ($) {
                 
                 <h4 id="add-test">.validatr('addTest', name[, fn])</h4>
                 <p>Add a custom test to the suite of <a href="#custom-tests">custom tests</a> that Validatr will perform on and input.</p>
-                <pre class="prettyprint linenums">
+<pre class="prettyprint linenums">
 $('form').validatr('addTest', 'example', function (element) {});
 
 //or 
@@ -178,13 +178,13 @@ $('form').validatr('addTest', {
                         </tr>
                     </tbody>
                 </table>
-                
+
                 <h4 id="get-elements">.validatr('getElements') <small class="label label-info">jQuery Object</small></h4>
                 <p>Returns all of the elements that will be validated in a form. This includes any elements that exist outside of the form but have the <code>form</code> attrbiute specified.</p>
                 <pre class="prettyprint linenums">$('form').validatr('getElements')</pre>                
                 <h5>Alternate Invocation</h5>
                 <pre class="prettyprint inline-block js">$.validatr.getElements(form)</pre>
-                
+
                 <h4 id="validate-element">.validatr('validateElement') <small class="label label-info">Boolean</small></h4>
                 <p>Returns the validity state of an element (boolean). It will not show any on-screen validation messages.</p>
                 <pre class="prettyprint linenums">$('form').validatr('validateElement')</pre>                
@@ -197,11 +197,12 @@ $('form').validatr('addTest', {
                 <h5>Alternate Invocation</h5>
                 <pre class="prettyprint inline-block js">$.validatr.validateForm(form)</pre>
             </section>
-            <section id="types">
-                <h2>Types</h2>
+            <section id="fields">
+                <h2>Fields</h2>
+                <h3>Types</h3>
                 <p>Validatr supports the follwoing HTML5 new input types. Input types such as <code>text</code>, <code>checkbox</code>, <code>radio</code>, etc. are also supported, but do not require the same level of validation. Input types such as <code>tel</code> don't have any validation logic in the HTML5 spec. Use the <code>pattern</code> attribute or create your own custom test.</p>
-                <p><span class="label label-important">Required</span> All elements support the <code>required</code> attribute.</p>
-                <h3>Color</h3>
+                <br>
+                <h4>Color</h4>
                 <div class="row">
                     <div class="span3">
                         <form action="./">
@@ -217,7 +218,8 @@ $('form').validatr('addTest', {
                         <p><span class="label label-info">Format</span> The color provided must be a <a href="http://www.w3.org/TR/html-markup/input.color.html#input.color.attrs.value" target="_blank">simple color format</a>, example: #000000</p>
                     </div>
                 </div>
-                <h3>Date</h4>
+                <br>
+                <h4>Date</h4>
                 <div class="row">
                     <div class="span3">
                         <form action="./">
@@ -260,7 +262,7 @@ $('form').validatr('addTest', {
                         </table>
                     </div>
                 </div>
-                <h3>Email</h3>
+                <h4>Email</h4>
                 <div class="row">
                     <div class="span3">
                         <form action="./">
@@ -297,7 +299,7 @@ $('form').validatr('addTest', {
                         </table>
                     </div>
                 </div>
-                <h3>Number</h3>
+                <h4>Number</h4>
                 <div class="row">
                     <div class="span3">
                         <form action="./">
@@ -339,7 +341,7 @@ $('form').validatr('addTest', {
                         </table>
                     </div>
                 </div>
-                <h3>Range</h3>
+                <h4>Range</h4>
                  <div class="row">
                     <div class="span3">
                         <form action="./">
@@ -382,7 +384,7 @@ $('form').validatr('addTest', {
                         </table>
                     </div>
                 </div>
-                <h3>URL</h3>
+                <h4>URL</h4>
                  <div class="row">
                     <div class="span3">
                         <form action="./">
@@ -406,27 +408,91 @@ $('form').validatr('addTest', {
                                 </tr>
                             </thead>
                             <tbody>
-                                <td><code>pattern</code></td>
-                                <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/RegExp" target="_blank">RegExp</a></td>
-                                <td>Provide an alternate pattern for an email address, such as restricting to a domain</td>
+                                <tr>                                
+                                    <td><code>pattern</code></td>
+                                    <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/RegExp" target="_blank">RegExp</a></td>
+                                    <td>Provide an alternate pattern for an email address, such as restricting to a domain</td>
+                                </tr>
                            </tbody>
                         </table>
                     </div>
                 </div>
+                <h3>Attrbiutes</h3>
+                <p>The following are global attrbiutes that can be added to any element.</p>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Attribute</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>data-location</code></td>
+                                    <td>The location of the error message. If set on a field this will override any value specified in the widget options.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>data-message</code></td>
+                                    <td>A custom error message to display.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>form</code></td>
+                                    <td>Allows you to include a field that exists outside a form in the form validation. The value of this attribute is the <code>id</code> of the form you want to use.</td>
+                                </tr>
+                                <tr>
+                                    <td><code>required</code></td>
+                                    <td>
+                                        Indicates that a field must have a value. In the case of <code>checkbox</code> and <code>radio</code> inputs required to see if the field is <code>checked</code>.
+                                        <br>
+                                        <span class="label label-info">type="radio"</span> When using inputs with a type <code>radio</code> only one input in that group needs the <code>required</code> attribute.
+                                    </td>
+                                </tr>
+                           </tbody>
+                        </table>
+            </section>
+            <section id="messages">
+                <h2>Messages</h2>
+                <p>Error messages in Validatr are meant to mimic the default messages provided by the browser during native validation. Not all browsers use the exact same messaging, though. I chose to use the Chrome messages since Chrome currently has the most support for native form validation.</p>
+                <h3>L10n and Customization</h3>
+                <p>Validatr exposes the messages it uses and makes them available for customization. <br></p>
+                <p><span class="label label-warning">Use</span> This is currently only available for field types that are not supported by a browser, future releases will add the ability to override the error messages for natively supported fields as well.</p>
+<pre class="prettyprint">
+$.validatr.messages = {
+    checkbox: 'Please check this box if you want to proceed.',
+    color: 'Please enter a color in the format #xxxxxx',
+    email: {
+        single: 'Please enter an email address.',
+        multiple: 'Please enter a comma separated list of email addresses.'
+    },
+    pattern: 'Please match the requested format.',
+    radio: 'Please select one of these options.',
+    range: {
+        base: 'Please enter a {{type}}',
+        gte: 'Please enter a {{type}} greater than or equal to {{min}}.', 
+        gtelte: 'Please enter a {{type}} greater than or equal to {{min}}&lt;br&gt; and less than or equal to {{max}}.',
+        invalid: 'Invalid {{type}}',
+        lte: 'Please enter a {{type}} less than or equal to {{max}}.'
+    },
+    required: 'Please fill out this field.',
+    select: 'Please select an item in the list.',
+    url: 'Please enter a url.'
+};
+</pre>
+                <p>The <code>range</code> messages are valid for several different input types, including <code>date</code>, <code>number</code>, <code>range</code>, <code>time</code>, etc. When customizing these mssages make sure to include the <code>{{type}}</code>, <code>{{min}}</code>, and <code>{{max}}</code> keys. These will be replaced with the correct values during the validation process.</p>
             </section>
             <section id="custom-tests">
                 <h2>Custom Tests</h2>
                 <div class="row">
                     <div class="span7">
-                        <p>Validtr can run any custom validation you want on an element using the <code>data-*</code> attribute. Use the <a href="#add-test">addTest</a> method to create new custom tests. In order for a custom test to run the <code>data-*</code> attribute needs to be given a value.</p>
+                        <p>Validtr can run any custom validation you want on an element using the <code>data-*</code> attribute. Use the <a href="#add-test">addTest</a> method to create new custom tests. You can optionally include a value for the <code>data-*</code> attribute that you can retreive in your test.</p>
                     </div>
                     <div class="span5">
-                        <pre class="prettyprint">&lt;input type="text" data-customtest="true"&gt;</pre>
+                        <pre class="prettyprint">&lt;input type="text" data-customtest&gt;</pre>
                     </div>
                 </div>
                 
                 <h3>Callback</h3>
-                <pre class="prettyprint linenums">
+<pre class="prettyprint linenums">
 function (element) {
     // Validation logic here
 
@@ -438,7 +504,7 @@ function (element) {
 </pre>
                 <h4>Returns</h4>
                 <p>All tests must return an object in the following form:</p>
-                <pre class="prettyprint linenums">
+<pre class="prettyprint linenums">
 {
     valid: Boolean,
     message: 'String'
