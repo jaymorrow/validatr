@@ -97,14 +97,14 @@
         checkbox: function (element) {
             return {
                 valid: element.checked,
-                message: 'Please check this box if you want to proceed.'
+                message: $[widgetName].messages.checkbox
             };
         },
 
         color: function (element) {
             return {
                 valid: Rules.color.test(element.value),
-                message: 'Please enter a color in the format #xxxxxx'
+                message: $[widgetName].messages.color
             };
         },
 
@@ -120,7 +120,7 @@
 
         email: function (element) {   
             var valid = true,
-                msg = 'Please enter an email address.',
+                msg = $[widgetName].messages.email.single,
                 multiple = Support.attributes.multiple ? element.multiple : $(element).is('[multiple]');
 
             if (multiple) {
@@ -129,7 +129,7 @@
                 $.each(values, function (i, value) {
                     if (!Rules.email.test(value)) {
                         valid = false;
-                        msg = 'Please enter a comma separated list of email addresses.';
+                        msg = $[widgetName].messages.email.multiple;
                         return;
                     }
                 });
@@ -160,14 +160,14 @@
         pattern: function (element) {
             return {
                 valid: new RegExp(element.pattern).test(element.value),
-                message: 'Please match the requested format.'
+                message: $[widgetName].messages.pattern
             };
         },
 
         radio: function (element) {
             return {
                 valid: $(document.getElementsByName(element.name)).is(':checked'),
-                message: 'Please select one of these options.'
+                message: $[widgetName].messages.radio
             };
         },
 
@@ -182,21 +182,21 @@
 
             return {
                 valid: element.value.length,
-                message: element.nodeName.toLowerCase() === 'select' ? 'Please select an item in the list.' : 'Please fill out this field.'
+                message: element.nodeName.toLowerCase() === 'select' ? $[widgetName].messages.select : $[widgetName].messages.required
             };
         },
 
         time: function (element) {
             return {
                 valid: Rules.time.test(element.value),
-                message: 'Please enter a time in the format hh:mm:ss'
+                message: $[widgetName].messages.time
             };
         },
 
         url: function (element) {
             return {
                 valid: Rules.url.test(element.value),
-                message: 'Please enter a url.'
+                message: $[widgetName].messages.url
             };
         }
     },
@@ -207,7 +207,7 @@
                 throw new Error('element must have a type of text');
             }
 
-            var type = $(element).data('as');
+            var type = element.getAttribute('data-as');
 
             if (Tests[type]) {
                 return Tests[type](element);
@@ -215,7 +215,7 @@
         },
 
         match: function (element) {
-            var match = $(element).data('match'),
+            var match = element.getAttribute('data-match'),
                 source = document.getElementById(match) || document.getElementsByName(match)[0];
 
             if (!source) {
@@ -269,7 +269,7 @@
     },
 
     parseDate = function (element) {
-        var format = $(element).data('format') || $[widgetName].dateFormat,
+        var format = element.getAttribute('data-format') || dateFormat,
             split = format.split(Rules.separatorsNoGroup),
             dateSplit = element.value.split(Rules.separatorsNoGroup),
             isoSplit = 'yyyy-mm-dd'.split('-'),
@@ -306,14 +306,14 @@
         var date = dateObj.getDate(),
             month = dateObj.getMonth() + 1,
             year = dateObj.getFullYear(),
-            dateString = ($(element).data('format') || $[widgetName].dateFormat).replace('mm', month).replace('yyyy', year).replace('dd', date);
+            dateString = (element.getAttribute('data-format') || dateFormat).replace('mm', month).replace('yyyy', year).replace('dd', date);
 
         return dateString;
     },
 
     minMax = function (value, min, max, step, type) {
         var result = true,
-            msg = 'Please enter a ' + type,
+            msg = $[widgetName].messages.range.base,
             minString = min,
             maxString = max;
 
@@ -325,24 +325,24 @@
         if (value !== false) {
             if (min !== false && max !== false) {
                 result = value >= min && value <= max;
-                msg = 'Please enter a ' + type + ' greater than or equal to ' + minString + '<br /> and less than or equal to ' + maxString + '.';
+                msg = $[widgetName].messages.range.gtelte;
             } else if (min !== false) {
                 result = value >= min;
-                msg = 'Please enter a ' + type + ' greater than or equal to ' + minString + '.';
+                msg = $[widgetName].messages.range.gte;
             } else if (max !== false) {
                 result = value <= max;
-                msg = 'Please enter a ' + type + ' less than or equal to ' + maxString + '.';
+                msg = $[widgetName].messages.range.lte;
             }
 
             if (result && step !== false) {
                 result = (value - min) % step === 0;
-                msg = 'Invalid ' + type;
+                msg = $[widgetName].messages.range.invalid;
             }
         }
 
         return {
             valid: value !== false && result,
-            message: msg
+            message: msg.replace('{{type}}', type).replace('{{min}}', minString).replace('{{max}}', maxString)
         };    
     },
 
@@ -372,8 +372,6 @@
     Widget = function () {};
 
     Widget.prototype = {
-
-        dateFormat: dateFormat,
 
         addTest: function (name) {
             var isObject = typeof name !== 'string',
@@ -518,15 +516,13 @@
             type = element.getAttribute('type'),
             required = Support.attributes.required ? element.required : $(element).is('[required]'),
             check = {
-                valid: true
+                valid: true,
+                message: ''
             };
 
         if (Support.inputtypes[type] && element.checkValidity) {
-            check.valid = element.checkValidity();
-
-            if (!check.valid) {
-                return false;
-            } 
+            check.valid = element.validity.valid;
+            check.message = element.validationMessage;
         } else {
             if (required) {
                 check = Tests.required(element);
@@ -579,6 +575,7 @@
 
     function submitForm() {
         /*jshint validthis:true */
+
         this.isSubmit = true;
         resetForm.call(this);
         var valid = validateForm(this.elements);
@@ -587,7 +584,6 @@
             return this.options.valid.call(this.el, this.el);
         } else {
             bindElements.call(this);
-            //this.firstError.focus();
         }
 
         this.isSubmit = false;
@@ -613,8 +609,8 @@
 
         var target = e.target,
             $target = $(target),
-            msg = target.validationMessage || $.data(target, 'validationMessage'),
             options = this.options,
+            msg = target.getAttribute('data-message') || $.data(target, 'validationMessage'),
             error = $(options.template.replace('{{message}}', msg));
 
 
@@ -632,6 +628,10 @@
     }
 
     function validElement(e) {
+        if (supressError) {
+            return;
+        }
+
         $(e.target).next('.validatr-message').remove();
     }
 
@@ -640,7 +640,7 @@
         error.css('position', 'absolute');
 
         var offset = $target.offset(),
-            location = $target.data('location') || this.options.location;
+            location = $target[0].getAttribute('data-location') || this.options.location;
 
         if (Rules.topbottom.test(location)) {
             error.offset({left: offset.left});
@@ -709,15 +709,37 @@
     };
 
     $.fn[widgetName].defualtOptions = {
-        showall: false,
+        customMessages: false,
         location: 'right',
         position: position,
+        showall: false,
         template: '<div>{{message}}</div>',
         theme: 'none',
         valid: $.noop
     };
 
     $[widgetName] = new Widget();
+    $[widgetName].messages = {
+        checkbox: 'Please check this box if you want to proceed.',
+        color: 'Please enter a color in the format #xxxxxx',
+        email: {
+            single: 'Please enter an email address.',
+            multiple: 'Please enter a comma separated list of email addresses.'
+        },
+        pattern: 'Please match the requested format.',
+        radio: 'Please select one of these options.',
+        range: {
+            base: 'Please enter a {{type}}',
+            gte: 'Please enter a {{type}} greater than or equal to {{min}}.', 
+            gtelte: 'Please enter a {{type}} greater than or equal to {{min}}<br> and less than or equal to {{max}}.',
+            invalid: 'Invalid {{type}}',
+            lte: 'Please enter a {{type}} less than or equal to {{max}}.'
+        },
+        required: 'Please fill out this field.',
+        select: 'Please select an item in the list.',
+        time: 'Please enter a time in the format hh:mm:ss',
+        url: 'Please enter a url.'
+    };
 
     // Custom selector.
     $.expr[':'][widgetName] = function(elem) {
