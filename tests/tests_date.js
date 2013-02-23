@@ -26,14 +26,24 @@ Test assertions:
         parseISODate = $.validatr.parseISODate,
         formatISODate = $.validatr.formatISODate;
 
-    if (!InputTypes.date) {
-        module('Date', {
-            setup: function () {
-                this.input = document.createElement('input');
-                this.input.setAttribute('type', 'date');
-            }
-        });
+    module('tests: date', {
+        setup: function () {
+            this.input = document.createElement('input');
+            this.input.setAttribute('type', 'date');
+        }
+    });
 
+    if (InputTypes.date) {
+        test('support', function () {
+            ok(InputTypes.date === true, '\'date\' type validation is supported by your browser');
+        });
+    }
+
+    if (!InputTypes.date) {
+        test('no support', function () {
+            ok(InputTypes.date === false, '\'date\' type vaildation is not supported by your browser');
+        });
+    
         test('parseISODate', function () {
             var isoDate = parseISODate('2013-01-01').toString(),
                 date = new Date('01/01/2013').toString();
@@ -56,7 +66,7 @@ Test assertions:
             ok(Tests.required(this.input).valid === true, 'field valid with value');            
         });
 
-        test('formatting', function () {
+        test('format', function () {
             this.input.value = '2013-01-01';
             ok(Tests.date(this.input).valid === false, 'field is invalid with ISO date and defualt formatting of mm/dd/yyyy');
 

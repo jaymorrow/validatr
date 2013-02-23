@@ -96,6 +96,7 @@
         notInput: /select|textarea/i,
         separators: /(\/|\-|\.)/g,
         separatorsNoGroup: /\/|\-|\./g,
+        spaces: /,\s*/,
         time: /^([01][0-9]|2[0-3])(:([0-5][0-9])){2}$/,
         topbottom: /top|bottom/i,
         url: /^\s*https?:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?\s*$/
@@ -126,13 +127,13 @@
             return minMax.call(element, value, min, max, step, 'date');
         },
 
-        email: function (element) {   
+        email: function (element) {
             var valid = true,
                 msg = $.validatr.messages.email.single,
                 multiple = Support.attributes.multiple ? element.multiple : $(element).is('[multiple]');
 
             if (multiple) {
-                var values = element.value.split(',');
+                var values = element.value.split(Rules.spaces);
 
                 $.each(values, function (i, value) {
                     if (!Rules.email.test(value)) {
