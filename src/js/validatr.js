@@ -9,7 +9,7 @@
 (function(window, document, $, undefined) {
     "use strict";
 
-    /*! Modernizr 2.6.2 (Custom Build) | MIT & BSD
+    /*! Modernizr 2.6.2| MIT & BSD
      * Build: http://modernizr.com/download/#-input-inputtypes
      */
     var Support = (function() {
@@ -22,6 +22,10 @@
 
         inputElem  = document.createElement('input'),
 
+        selectElem = document.createElement('select'),
+
+        textareaElem = document.createElement('textarea'),
+
         inputs = {};
 
         Modernizr['attributes'] = {
@@ -31,6 +35,7 @@
 
         Modernizr['inputtypes'] = (function(props) {
 
+            docElement.appendChild(inputElem);
             for ( var i = 0, bool, inputElemType, defaultView, len = props.length; i < len; i++ ) {
 
                 inputElem.setAttribute('type', inputElemType = props[i]);
@@ -42,35 +47,37 @@
                     inputElem.style.cssText = 'position:absolute;visibility:hidden;';
 
                     if ( /^range$/.test(inputElemType) && inputElem.style.WebkitAppearance !== undefined ) {
-
-                        docElement.appendChild(inputElem);
+                        
                         defaultView = document.defaultView;
+                        bool =  defaultView.getComputedStyle && defaultView.getComputedStyle(inputElem, null).WebkitAppearance !== 'textfield' && (inputElem.offsetHeight !== 0);
 
-                        bool =  defaultView.getComputedStyle &&
-                        defaultView.getComputedStyle(inputElem, null).WebkitAppearance !== 'textfield' &&
-                        (inputElem.offsetHeight !== 0);
-
-                        docElement.removeChild(inputElem);
-
-                    } else if ( /^(search|tel)$/.test(inputElemType) ){
-                    } else if ( /^(url|email)$/.test(inputElemType) ) {
+                    } else if ( /^search|tel$/.test(inputElemType) ){
+                    } else if ( /^url|email$/.test(inputElemType) ) {
                         bool = inputElem.checkValidity && inputElem.checkValidity() === false;
-
+                    } else if ( /^checkbox|radio|password$/.test(inputElemType) ) {
+                        bool = inputElem.checkValidity;
                     } else {
                         bool = inputElem.value !== smile;
                     }
                 }
 
+                if ( props[i] === 'text' ) {
+                    bool = inputElem.checkValidity;                    
+                }
+
                 inputs[ props[i] ] = !!bool;
             }
-
-            inputs.text = true;
-            inputs.password = true;
+            docElement.removeChild(inputElem);
 
             return inputs;
-        })('search tel url email datetime date month week time datetime-local number range color'.split(' '));
+        })('text search tel url email datetime date month week time datetime-local number range color password checkbox radio'.split(' '));
+
+        Modernizr.inputtypes.select = !!selectElem.checkValidity;
+        Modernizr.inputtypes.textarea = !!textareaElem.checkValidity;
 
         inputElem = null;
+        selectElem = null;
+        textareaElem = null;
 
         return Modernizr;
     }()),
@@ -86,6 +93,7 @@
         email: /^[a-zA-Z0-9.!#$%&’*+\/=?\^_`{|}~\-]+@[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)*$/,
         isoDate: /^(\d{4})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/,
         leftright: /left|right/i,
+        notInput: /select|textarea/i,
         separators: /(\/|\-|\.)/g,
         separatorsNoGroup: /\/|\-|\./g,
         time: /^([01][0-9]|2[0-3])(:([0-5][0-9])){2}$/,
@@ -97,14 +105,14 @@
         checkbox: function (element) {
             return {
                 valid: element.checked,
-                message: $[widgetName].messages.checkbox
+                message: $.validatr.messages.checkbox
             };
         },
 
         color: function (element) {
             return {
                 valid: Rules.color.test(element.value),
-                message: $[widgetName].messages.color
+                message: $.validatr.messages.color
             };
         },
 
@@ -120,7 +128,7 @@
 
         email: function (element) {   
             var valid = true,
-                msg = $[widgetName].messages.email.single,
+                msg = $.validatr.messages.email.single,
                 multiple = Support.attributes.multiple ? element.multiple : $(element).is('[multiple]');
 
             if (multiple) {
@@ -129,7 +137,7 @@
                 $.each(values, function (i, value) {
                     if (!Rules.email.test(value)) {
                         valid = false;
-                        msg = $[widgetName].messages.email.multiple;
+                        msg = $.validatr.messages.email.multiple;
                         return;
                     }
                 });
@@ -160,14 +168,14 @@
         pattern: function (element) {
             return {
                 valid: new RegExp(element.pattern).test(element.value),
-                message: $[widgetName].messages.pattern
+                message: $.validatr.messages.pattern
             };
         },
 
         radio: function (element) {
             return {
                 valid: $(document.getElementsByName(element.name)).is(':checked'),
-                message: $[widgetName].messages.radio
+                message: $.validatr.messages.radio
             };
         },
 
@@ -181,22 +189,22 @@
             }
 
             return {
-                valid: element.value.length,
-                message: element.nodeName.toLowerCase() === 'select' ? $[widgetName].messages.select : $[widgetName].messages.required
+                valid: !!element.value.length,
+                message: element.nodeName.toLowerCase() === 'select' ? $.validatr.messages.select : $.validatr.messages.required
             };
         },
 
         time: function (element) {
             return {
                 valid: Rules.time.test(element.value),
-                message: $[widgetName].messages.time
+                message: $.validatr.messages.time
             };
         },
 
         url: function (element) {
             return {
                 valid: Rules.url.test(element.value),
-                message: $[widgetName].messages.url
+                message: $.validatr.messages.url
             };
         }
     },
@@ -313,7 +321,7 @@
 
     minMax = function (value, min, max, step, type) {
         var result = true,
-            msg = $[widgetName].messages.range.base,
+            msg = $.validatr.messages.range.base,
             minString = min,
             maxString = max;
 
@@ -325,18 +333,18 @@
         if (value !== false) {
             if (min !== false && max !== false) {
                 result = value >= min && value <= max;
-                msg = $[widgetName].messages.range.gtelte;
+                msg = $.validatr.messages.range.overUnder;
             } else if (min !== false) {
                 result = value >= min;
-                msg = $[widgetName].messages.range.gte;
+                msg = $.validatr.messages.range.overflow;
             } else if (max !== false) {
                 result = value <= max;
-                msg = $[widgetName].messages.range.lte;
+                msg = $.validatr.messages.range.underflow;
             }
 
             if (result && step !== false) {
                 result = (value - min) % step === 0;
-                msg = $[widgetName].messages.range.invalid;
+                msg = $.validatr.messages.range.invalid;
             }
         }
 
@@ -353,13 +361,11 @@
         return element;
     },
 
-    widgetName = 'validatr',
-
     theme = {
-        base: widgetName + '-message ',
+        base: 'validatr' + '-message ',
         bootstrap: 'alert alert-error',
         jqueryui: 'ui-state-error ui-corner-all',
-        none: widgetName + '-error'
+        none: 'validatr' + '-error'
     },
 
     submit = 'button, input[type=submit], input[type=button], input[type=reset]',
@@ -369,10 +375,9 @@
     dateFormat = 'mm/dd/yyyy',
 
     // Validatr
-    Widget = function () {};
+    Validatr = function () {};
 
-    Widget.prototype = {
-
+    Validatr.prototype = {
         addTest: function (name) {
             var isObject = typeof name !== 'string',
                 args = Array.prototype.slice.call(arguments, 1)[0];
@@ -439,22 +444,22 @@
         this.$el = $(el);
 
         if (!this.$el.length || !this.$el.is('form')) {
-            throw new Error(widgetName + ' needs a form to work.');
+            throw new Error('validatr' + ' needs a form to work.');
         }
 
         this.isSubmit = false;
         this.firstError = false;
 
-        this.options = $.extend({}, $.fn[widgetName].defualtOptions, options);
+        this.options = $.extend({}, $.fn.validatr.defualtOptions, options);
         this.options.template = $(this.options.template).addClass(theme.base + theme[this.options.theme])[0].outerHTML;
 
         this.elements = this.getElements(this.el)
-            .on('valid.' + widgetName, $.proxy(validElement, this))
-            .on('invalid.' + widgetName, $.proxy(invalidElement, this));
+            .on('valid.' + 'validatr', $.proxy(validElement, this))
+            .on('invalid.' + 'validatr', $.proxy(invalidElement, this));
 
         this.el.noValidate = true;
-        this.$el.on('submit.' + widgetName, $.proxy(submitForm, this));
-        this.$el.on('reset.' + widgetName, $.proxy(resetForm, this));
+        this.$el.on('submit.' + 'validatr', $.proxy(submitForm, this));
+        this.$el.on('reset.' + 'validatr', $.proxy(resetForm, this));
     }
 
     function bindElements() {
@@ -513,14 +518,14 @@
         }
 
         var $element = $(element),
-            type = element.getAttribute('type'),
+            type = Rules.notInput.test(element.nodeName) ? element.nodeName.toLowerCase() : element.getAttribute('type'),
             required = Support.attributes.required ? element.required : $(element).is('[required]'),
             check = {
                 valid: true,
                 message: ''
             };
 
-        if (Support.inputtypes[type] && element.checkValidity) {
+        if (Support.inputtypes[type]) {
             check.valid = element.validity.valid;
             check.message = element.validationMessage;
         } else {
@@ -669,7 +674,7 @@
      * http://jqueryui.com
      * Copyright (c) 2012 jQuery Foundation and other contributors Licensed MIT 
      */
-    $.fn[widgetName] = function(options) {
+    $.fn.validatr = function(options) {
         var isMethod = typeof options === 'string',
             args = Array.prototype.slice.call(arguments, 1),
             returnValue = this,
@@ -679,12 +684,12 @@
             this.each(function() {
                 var methodValue;
                 
-                instance = $.data(this, widgetName);
+                instance = $.data(this, 'validatr');
                 if (!instance) {
-                    throw new Error("cannot call methods on " + widgetName + " prior to initialization; attempted to call method '" + options + "'" );
+                    throw new Error("cannot call methods on validatr prior to initialization; attempted to call method '" + options + "'" );
                 }
                 if (!$.isFunction(instance[options])) {
-                    throw new Error( "no such method '" + options + "' for " + widgetName + " widget instance" );
+                    throw new Error( "no such method '" + options + "' for validatr instance" );
                 }
 
                 methodValue = instance[options].apply(instance, args);
@@ -696,11 +701,11 @@
         } else {
             var widget;
             this.each(function() {
-                instance = $.data(this, widgetName);
+                instance = $.data(this, 'validatr');
                 if (!instance) {
-                    widget = new Widget();
+                    widget = new Validatr();
                     init.call(widget, this, options || {});
-                    $.data(this, widgetName, widget);
+                    $.data(this, 'validatr', widget);
                 }
             });
         }
@@ -708,7 +713,7 @@
         return returnValue;
     };
 
-    $.fn[widgetName].defualtOptions = {
+    $.fn.validatr.defualtOptions = {
         customMessages: false,
         location: 'right',
         position: position,
@@ -718,8 +723,9 @@
         valid: $.noop
     };
 
-    $[widgetName] = new Widget();
-    $[widgetName].messages = {
+    $.validatr = new Validatr();
+    
+    $.validatr.messages = {
         checkbox: 'Please check this box if you want to proceed.',
         color: 'Please enter a color in the format #xxxxxx',
         email: {
@@ -730,20 +736,32 @@
         radio: 'Please select one of these options.',
         range: {
             base: 'Please enter a {{type}}',
-            gte: 'Please enter a {{type}} greater than or equal to {{min}}.', 
-            gtelte: 'Please enter a {{type}} greater than or equal to {{min}}<br> and less than or equal to {{max}}.',
+            overflow: 'Please enter a {{type}} greater than or equal to {{min}}.', 
+            overUnder: 'Please enter a {{type}} greater than or equal to {{min}}<br> and less than or equal to {{max}}.',
             invalid: 'Invalid {{type}}',
-            lte: 'Please enter a {{type}} less than or equal to {{max}}.'
+            underflow: 'Please enter a {{type}} less than or equal to {{max}}.'
         },
         required: 'Please fill out this field.',
         select: 'Please select an item in the list.',
         time: 'Please enter a time in the format hh:mm:ss',
         url: 'Please enter a url.'
     };
+    
+    $.validatr.debug = function () {
+        /*global QUnit */
+        
+        if (!QUnit) {
+            throw new Error('QUnit is required for debugging');
+        }
+
+        this.Support = Support;
+        this.Tests = Tests;
+        this.CustomTests = CustomTests;
+    }
 
     // Custom selector.
-    $.expr[':'][widgetName] = function(elem) {
-        return elem.textContent.indexOf(widgetName) >= 0;
+    $.expr[':'].validatr = function(elem) {
+        return elem.textContent.indexOf('validatr') >= 0;
     };
 
 }(this, this.document, jQuery));
