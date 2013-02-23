@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Validatr Test Suite</title>
+    <link rel="stylesheet" href="../libs/qunit/qunit.css" media="screen">
+    <script src="../libs/qunit/qunit.js"></script>
+    <script>
+        if (window.location.hash === '#testem') {
+            document.write('<script src="/testem.js"></scrip' + 't>');
+        }
+    </script>
+    <script src="../libs/jquery/jquery.js"></script>
+    <script src="../src/js/validatr.js"></script>
+    <script>$.validatr.debug();</script>
+    <script src="tests_date.js"></script>
+</head>
+<body>
+    <div id="qunit"></div>
+</body>
+</html>

@@ -311,8 +311,12 @@
     },
 
     formatISODate = function (dateObj, element) {
-        var date = dateObj.getDate(),
-            month = dateObj.getMonth() + 1,
+        function pad(n) {
+            return n < 10 ? '0' + n : n;
+        }
+
+        var date = pad(dateObj.getDate()),
+            month = pad(dateObj.getMonth() + 1),
             year = dateObj.getFullYear(),
             dateString = (element.getAttribute('data-format') || dateFormat).replace('mm', month).replace('yyyy', year).replace('dd', date);
 
@@ -757,6 +761,9 @@
         this.Support = Support;
         this.Tests = Tests;
         this.CustomTests = CustomTests;
+        this.parseDate = parseDate;
+        this.parseISODate = parseISODate;
+        this.formatISODate = formatISODate;
     };
 
     // Custom selector.
