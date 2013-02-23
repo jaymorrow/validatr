@@ -757,7 +757,7 @@
         this.Support = Support;
         this.Tests = Tests;
         this.CustomTests = CustomTests;
-    }
+    };
 
     // Custom selector.
     $.expr[':'].validatr = function(elem) {
