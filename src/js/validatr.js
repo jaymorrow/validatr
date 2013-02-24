@@ -116,6 +116,7 @@
         isoDate: /^(\d{4})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/,
         leftright: /left|right/i,
         notInput: /select|textarea/i,
+        number: /^-?\d*\.?\d*$/,
         separators: /(\/|\-|\.)/g,
         separatorsNoGroup: /\/|\-|\./g,
         spaces: /,\s*/,
@@ -144,7 +145,7 @@
                 value = Support.inputtypes.date ? parseISODate(element.value) : parseDate(element),
                 min = $element.attr('min') ? parseISODate($element.attr('min')) : false,
                 max = $element.attr('max') ? parseISODate($element.attr('max')) : false,
-                step = isNaN($element.attr('step')) ? false : parseInt($element.attr('step'), 10);
+                step = false;
             
             return minMax.call(element, value, min, max, step, 'date');
         },
@@ -175,14 +176,14 @@
         },
 
         number: function (element) {
-            var $element = $(element),
-                value = isNaN(parseFloat(element.value)) ? false : parseFloat(element.value),
-                min = value !== false ? isNaN($element.attr('min')) ? false : parseFloat($element.attr('min')) : false,
-                max = value !== false ? isNaN($element.attr('max')) ? false : parseFloat($element.attr('max')) : false,
-                step = value !== false ? isNaN($element.attr('step')) ? false : parseFloat($element.attr('step')) : false;
-
-            if (step !== false && min === false) {
-                min = 0;
+            var value = element.value.replace(',', ''),
+                num = Rules.number.test(value) ? parseFloat(value) : false,
+                min = Rules.number.test( element.getAttribute('min') ) ? parseFloat( element.getAttribute('min') ) : false,
+                max = Rules.number.test( element.getAttribute('max') ) ? parseFloat( element.getAttribute('max') ) : false,
+                step = Rules.number.test( element.getAttribute('step') ) ? parseFloat( element.getAttribute('step') ) : element.getAttribute('step') === 'any' ? 'any' : false;
+            
+            if (step === false || step <= 0) {
+                step = 1;
             }
 
             return minMax.call(element, value, min, max, step, 'number');
@@ -358,20 +359,22 @@
         }
 
         if (value !== false) {
-            if (min !== false && max !== false) {
-                result = value >= min && value <= max;
-                msg = $.validatr.messages.range.overUnder;
-            } else if (min !== false) {
-                result = value >= min;
-                msg = $.validatr.messages.range.overflow;
-            } else if (max !== false) {
-                result = value <= max;
-                msg = $.validatr.messages.range.underflow;
+            if (step !== false) {
+                result = step === 'any' ? true : (value - min) % step === 0;
+                msg = $.validatr.messages.range.invalid;
             }
 
-            if (result && step !== false) {
-                result = (value - min) % step === 0;
-                msg = $.validatr.messages.range.invalid;
+            if (result) {
+                if (min !== false && max !== false) {
+                    result = value >= min && value <= max;
+                    msg = $.validatr.messages.range.overUnder;
+                } else if (min !== false) {
+                    result = value >= min;
+                    msg = $.validatr.messages.range.overflow;
+                } else if (max !== false) {
+                    result = value <= max;
+                    msg = $.validatr.messages.range.underflow;
+                }  
             }
         }
 
