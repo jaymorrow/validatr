@@ -16,28 +16,35 @@
 
         var Modernizr = {},
 
-        docElement = document.documentElement,
+            docElement = document.documentElement,
 
-        smile = ':)',
+            inputElem  = document.createElement('input'),
 
-        inputElem  = document.createElement('input'),
+            selectElem = document.createElement('select'),
 
-        selectElem = document.createElement('select'),
+            textareaElem = document.createElement('textarea'),
 
-        textareaElem = document.createElement('textarea'),
+            smile = ':)',
 
-        inputs = {};
+            tests = {},
 
-        Modernizr['attributes'] = {
-            multiple: !!('multiple' in inputElem),
-            required: !!('required' in inputElem)
-        };
+            inputs = {},
 
-        Modernizr['inputtypes'] = (function(props) {
+            attrs = {},
 
-            docElement.appendChild(inputElem);
+            testElem;
+
+        Modernizr.attributes = (function( props ) {
+            for ( var i = 0, len = props.length; i < len; i++ ) {
+                attrs[ props[i] ] = !!(props[i] in inputElem);
+            }
+            return attrs;
+        })('max min multiple pattern required step'.split(' '));
+
+
+        Modernizr.inputtypes = (function(props) {
+            
             for ( var i = 0, bool, inputElemType, defaultView, len = props.length; i < len; i++ ) {
-
                 inputElem.setAttribute('type', inputElemType = props[i]);
                 bool = inputElem.type !== 'text';
 
@@ -47,35 +54,50 @@
                     inputElem.style.cssText = 'position:absolute;visibility:hidden;';
 
                     if ( /^range$/.test(inputElemType) && inputElem.style.WebkitAppearance !== undefined ) {
-                        
-                        defaultView = document.defaultView;
-                        bool =  defaultView.getComputedStyle && defaultView.getComputedStyle(inputElem, null).WebkitAppearance !== 'textfield' && (inputElem.offsetHeight !== 0);
 
-                    } else if ( /^search|tel$/.test(inputElemType) ){
-                    } else if ( /^url|email$/.test(inputElemType) ) {
+                        docElement.appendChild(inputElem);
+                        defaultView = document.defaultView;
+
+                        bool =  defaultView.getComputedStyle &&
+                        defaultView.getComputedStyle(inputElem, null).WebkitAppearance !== 'textfield' &&
+                        (inputElem.offsetHeight !== 0);
+
+                        docElement.removeChild(inputElem);
+
+                    } else if ( /^(search|tel)$/.test(inputElemType) ){
+                    } else if ( /^(url|email)$/.test(inputElemType) ) {
                         bool = inputElem.checkValidity && inputElem.checkValidity() === false;
-                    } else if ( /^checkbox|radio|password$/.test(inputElemType) ) {
-                        bool = inputElem.checkValidity;
                     } else {
                         bool = inputElem.value !== smile;
                     }
                 }
 
-                if ( props[i] === 'text' ) {
-                    bool = inputElem.checkValidity;                    
-                }
-
                 inputs[ props[i] ] = !!bool;
             }
-            docElement.removeChild(inputElem);
 
             return inputs;
-        })('text search tel url email datetime date month week time datetime-local number range color password checkbox radio'.split(' '));
+        })('search tel url email datetime date month week time datetime-local number range color'.split(' '));
+
+        (function(props) {        
+            for ( var i = 0, len = props.length; i < len; i++ ) {
+                testElem = inputElem;
+                
+                try {
+                    testElem.setAttribute('type', props[i]);
+                } catch (e) {
+                    testElem = document.createElement('<input type="' + props[i] + '">');
+                }
+
+                testElem.style.cssText = 'position:absolute;visibility:hidden;';
+                Modernizr.inputtypes[ props[i] ] = !!testElem.checkValidity;
+            }
+        })('text password radio checkbox'.split(' '));
 
         Modernizr.inputtypes.select = !!selectElem.checkValidity;
         Modernizr.inputtypes.textarea = !!textareaElem.checkValidity;
 
         inputElem = null;
+        testElem = null;
         selectElem = null;
         textareaElem = null;
 
