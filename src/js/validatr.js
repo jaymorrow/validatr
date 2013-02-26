@@ -191,7 +191,7 @@
 
         pattern: function (element) {
             return {
-                valid: new RegExp(element.pattern).test(element.value),
+                valid: new RegExp(element.getAttribute('pattern')).test(element.value),
                 message: $.validatr.messages.pattern
             };
         },
