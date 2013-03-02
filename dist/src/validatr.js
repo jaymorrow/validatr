@@ -1,4 +1,4 @@
-/*! Validatr - v0.3.2 - 2013-02-23
+/*! Validatr - v0.4.0 - 2013-03-01
 * http://jaymorrow.github.com/validatr/
 * Copyright (c) 2013 Jay Morrow; Licensed MIT */
 (function(window, document, $, undefined) {
@@ -11,28 +11,35 @@
 
         var Modernizr = {},
 
-        docElement = document.documentElement,
+            docElement = document.documentElement,
 
-        smile = ':)',
+            inputElem  = document.createElement('input'),
 
-        inputElem  = document.createElement('input'),
+            selectElem = document.createElement('select'),
 
-        selectElem = document.createElement('select'),
+            textareaElem = document.createElement('textarea'),
 
-        textareaElem = document.createElement('textarea'),
+            smile = ':)',
 
-        inputs = {};
+            tests = {},
 
-        Modernizr['attributes'] = {
-            multiple: !!('multiple' in inputElem),
-            required: !!('required' in inputElem)
-        };
+            inputs = {},
 
-        Modernizr['inputtypes'] = (function(props) {
+            attrs = {},
 
-            docElement.appendChild(inputElem);
+            testElem;
+
+        Modernizr.attributes = (function( props ) {
+            for ( var i = 0, len = props.length; i < len; i++ ) {
+                attrs[ props[i] ] = !!(props[i] in inputElem);
+            }
+            return attrs;
+        })('max min multiple pattern required step'.split(' '));
+
+
+        Modernizr.inputtypes = (function(props) {
+            
             for ( var i = 0, bool, inputElemType, defaultView, len = props.length; i < len; i++ ) {
-
                 inputElem.setAttribute('type', inputElemType = props[i]);
                 bool = inputElem.type !== 'text';
 
@@ -42,35 +49,50 @@
                     inputElem.style.cssText = 'position:absolute;visibility:hidden;';
 
                     if ( /^range$/.test(inputElemType) && inputElem.style.WebkitAppearance !== undefined ) {
-                        
-                        defaultView = document.defaultView;
-                        bool =  defaultView.getComputedStyle && defaultView.getComputedStyle(inputElem, null).WebkitAppearance !== 'textfield' && (inputElem.offsetHeight !== 0);
 
-                    } else if ( /^search|tel$/.test(inputElemType) ){
-                    } else if ( /^url|email$/.test(inputElemType) ) {
+                        docElement.appendChild(inputElem);
+                        defaultView = document.defaultView;
+
+                        bool =  defaultView.getComputedStyle &&
+                        defaultView.getComputedStyle(inputElem, null).WebkitAppearance !== 'textfield' &&
+                        (inputElem.offsetHeight !== 0);
+
+                        docElement.removeChild(inputElem);
+
+                    } else if ( /^(search|tel)$/.test(inputElemType) ){
+                    } else if ( /^(url|email)$/.test(inputElemType) ) {
                         bool = inputElem.checkValidity && inputElem.checkValidity() === false;
-                    } else if ( /^checkbox|radio|password$/.test(inputElemType) ) {
-                        bool = inputElem.checkValidity;
                     } else {
                         bool = inputElem.value !== smile;
                     }
                 }
 
-                if ( props[i] === 'text' ) {
-                    bool = inputElem.checkValidity;                    
-                }
-
                 inputs[ props[i] ] = !!bool;
             }
-            docElement.removeChild(inputElem);
 
             return inputs;
-        })('text search tel url email datetime date month week time datetime-local number range color password checkbox radio'.split(' '));
+        })('search tel url email datetime date month week time datetime-local number range color'.split(' '));
+
+        (function(props) {        
+            for ( var i = 0, len = props.length; i < len; i++ ) {
+                testElem = inputElem;
+                
+                try {
+                    testElem.setAttribute('type', props[i]);
+                } catch (e) {
+                    testElem = document.createElement('<input type="' + props[i] + '">');
+                }
+
+                testElem.style.cssText = 'position:absolute;visibility:hidden;';
+                Modernizr.inputtypes[ props[i] ] = !!testElem.checkValidity;
+            }
+        })('text password radio checkbox'.split(' '));
 
         Modernizr.inputtypes.select = !!selectElem.checkValidity;
         Modernizr.inputtypes.textarea = !!textareaElem.checkValidity;
 
         inputElem = null;
+        testElem = null;
         selectElem = null;
         textareaElem = null;
 
@@ -89,8 +111,10 @@
         isoDate: /^(\d{4})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/,
         leftright: /left|right/i,
         notInput: /select|textarea/i,
+        number: /^-?\d*\.?\d*$/,
         separators: /(\/|\-|\.)/g,
         separatorsNoGroup: /\/|\-|\./g,
+        spaces: /,\s*/,
         time: /^([01][0-9]|2[0-3])(:([0-5][0-9])){2}$/,
         topbottom: /top|bottom/i,
         url: /^\s*https?:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?\s*$/
@@ -116,18 +140,18 @@
                 value = Support.inputtypes.date ? parseISODate(element.value) : parseDate(element),
                 min = $element.attr('min') ? parseISODate($element.attr('min')) : false,
                 max = $element.attr('max') ? parseISODate($element.attr('max')) : false,
-                step = isNaN($element.attr('step')) ? false : parseInt($element.attr('step'), 10);
+                step = false;
             
             return minMax.call(element, value, min, max, step, 'date');
         },
 
-        email: function (element) {   
+        email: function (element) {
             var valid = true,
                 msg = $.validatr.messages.email.single,
                 multiple = Support.attributes.multiple ? element.multiple : $(element).is('[multiple]');
 
             if (multiple) {
-                var values = element.value.split(',');
+                var values = element.value.split(Rules.spaces);
 
                 $.each(values, function (i, value) {
                     if (!Rules.email.test(value)) {
@@ -147,14 +171,14 @@
         },
 
         number: function (element) {
-            var $element = $(element),
-                value = isNaN(parseFloat(element.value)) ? false : parseFloat(element.value),
-                min = value !== false ? isNaN($element.attr('min')) ? false : parseFloat($element.attr('min')) : false,
-                max = value !== false ? isNaN($element.attr('max')) ? false : parseFloat($element.attr('max')) : false,
-                step = value !== false ? isNaN($element.attr('step')) ? false : parseFloat($element.attr('step')) : false;
-
-            if (step !== false && min === false) {
-                min = 0;
+            var value = element.value.replace(',', ''),
+                num = Rules.number.test(value) ? parseFloat(value) : false,
+                min = Rules.number.test( element.getAttribute('min') ) ? parseFloat( element.getAttribute('min') ) : false,
+                max = Rules.number.test( element.getAttribute('max') ) ? parseFloat( element.getAttribute('max') ) : false,
+                step = Rules.number.test( element.getAttribute('step') ) ? parseFloat( element.getAttribute('step') ) : element.getAttribute('step') === 'any' ? 'any' : false;
+            
+            if (step === false || step <= 0) {
+                step = 1;
             }
 
             return minMax.call(element, value, min, max, step, 'number');
@@ -162,7 +186,7 @@
 
         pattern: function (element) {
             return {
-                valid: new RegExp(element.pattern).test(element.value),
+                valid: new RegExp(element.getAttribute('pattern')).test(element.value),
                 message: $.validatr.messages.pattern
             };
         },
@@ -272,7 +296,7 @@
     },
 
     parseDate = function (element) {
-        var format = element.getAttribute('data-format') || dateFormat,
+        var format = element.getAttribute('data-format') || $.fn.validatr.defualtOptions.dateFormat,
             split = format.split(Rules.separatorsNoGroup),
             dateSplit = element.value.split(Rules.separatorsNoGroup),
             isoSplit = 'yyyy-mm-dd'.split('-'),
@@ -306,10 +330,14 @@
     },
 
     formatISODate = function (dateObj, element) {
-        var date = dateObj.getDate(),
-            month = dateObj.getMonth() + 1,
+        function pad(n) {
+            return n < 10 ? '0' + n : n;
+        }
+
+        var date = pad(dateObj.getDate()),
+            month = pad(dateObj.getMonth() + 1),
             year = dateObj.getFullYear(),
-            dateString = (element.getAttribute('data-format') || dateFormat).replace('mm', month).replace('yyyy', year).replace('dd', date);
+            dateString = (element.getAttribute('data-format') || $.fn.validatr.defualtOptions.dateFormat).replace('mm', month).replace('yyyy', year).replace('dd', date);
 
         return dateString;
     },
@@ -326,20 +354,22 @@
         }
 
         if (value !== false) {
-            if (min !== false && max !== false) {
-                result = value >= min && value <= max;
-                msg = $.validatr.messages.range.overUnder;
-            } else if (min !== false) {
-                result = value >= min;
-                msg = $.validatr.messages.range.overflow;
-            } else if (max !== false) {
-                result = value <= max;
-                msg = $.validatr.messages.range.underflow;
+            if (step !== false) {
+                result = step === 'any' ? true : (value - min) % step === 0;
+                msg = $.validatr.messages.range.invalid;
             }
 
-            if (result && step !== false) {
-                result = (value - min) % step === 0;
-                msg = $.validatr.messages.range.invalid;
+            if (result) {
+                if (min !== false && max !== false) {
+                    result = value >= min && value <= max;
+                    msg = $.validatr.messages.range.overUnder;
+                } else if (min !== false) {
+                    result = value >= min;
+                    msg = $.validatr.messages.range.overflow;
+                } else if (max !== false) {
+                    result = value <= max;
+                    msg = $.validatr.messages.range.underflow;
+                }  
             }
         }
 
@@ -366,8 +396,6 @@
     submit = 'button, input[type=submit], input[type=button], input[type=reset]',
 
     supressError = false,
-
-    dateFormat = 'mm/dd/yyyy',
 
     // Validatr
     Validatr = function () {};
@@ -710,6 +738,7 @@
 
     $.fn.validatr.defualtOptions = {
         customMessages: false,
+        dateFormat: 'yyyy-mm-dd',
         location: 'right',
         position: position,
         showall: false,
@@ -752,6 +781,9 @@
         this.Support = Support;
         this.Tests = Tests;
         this.CustomTests = CustomTests;
+        this.parseDate = parseDate;
+        this.parseISODate = parseISODate;
+        this.formatISODate = formatISODate;
     };
 
     // Custom selector.
