@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>API | Validatr</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cross Browser HTML5 Form Validation.">
+    <meta name="author" content="Jay Morrow">
+
+    <link href="assets/css/font.css" rel="stylesheet">
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/css/validatr.min.css" rel="stylesheet">
+    <link href="assets/css/site.css" rel="stylesheet">
+    <link href="assets/css/prettify.css" rel="stylesheet">
+    <!--[if lte IE 7]>
+    <style type="text/css">
+        h1 [class^=icon-],
+        .brand [class^=icon-] {
+            margin-right: 10px;
+        }
+    </style>
+    <![endif]-->
+    <!--[if IE]><script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+    <!--[if lte IE 7]><script src="assets/js/fonts.js"></script><![endif]-->
+
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="assets/ico/apple-touch-icon-57-precomposed.png">
+    <link rel="shortcut icon" type="image/png" href="assets/ico/favicon.png">
+</head>
+
+<body>
+    <header class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container-fluid">
+                <a class="brand" href="/validatr"><span aria-hidden="true" class="icon-checkbox-checked"></span> Validatr</a>
+                <ul class="nav">
+                    <li><a href="fields.html">Fields</a></li>                
+                    <li><a href="api.html">Api</a></li>
+                    <li><a href="tests.html">Tests</a></li>
+                </ul>
+                <div class="navbar-text">
+                    <iframe src="http://ghbtns.com/github-btn.html?user=jaymorrow&repo=validatr&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>                
+                    <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jaymorrow.github.com/validatr/" data-via="jaymorrow" data-lang="en">Tweet</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <hr>
+   
+    <main>
+        <div class="container-fluid">
+            <div class="hero-unit">
+                <h1><span aria-hidden="true" class="icon-checkbox-checked"></span> Validatr</h1>
+                <p>Cross Browser HTML5 Form Validation.</p>
+                <p><a href="assets/validatr.zip" class="btn btn-primary">Download <span aria-hidden="true" class="icon-cloud-download"></span></a> <a href="https://github.com/jaymorrow/validatr" class="btn">View <span aria-hidden="true" class="icon-github"></span></a> </p>
+            </div>
+        </div>
+        <hr>
+        <div class="container">
+            <section id="getting-started">
+                <h2>Get Started <small>Using Validatr Is Easy</small></h2>
+                <div class="row">
+                    <div class="span3">
+                        <form action="./">
+                            <label for="email">Email</label> 
+                            <input type="email" id="email" name="email" required>
+                            <div>                    
+                                <input type="reset" class="btn btn-small" value="Reset">
+                                <input type="submit" class="btn btn-small btn-primary" value="Submit">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="span9">
+<pre class="prettyprint linenums">
+jQuery(function ($) {
+   $('form').validatr(); 
+});
+</pre>                
+<pre class="prettyprint linenums">
+&lt;form action="./"&gt;
+    &lt;label for="email"&gt;Email&lt;/label&gt; 
+    &lt;input type="email" id="email" name="email" required&gt;
+    &lt;div&gt;
+        &lt;input type="reset" class="btn" value="Reset"&gt;
+        &lt;input type="submit" value="Submit"&gt;
+    &lt;/div&gt;
+&lt;/form&gt;
+</pre>                  
+                    </div>
+                </div>
+                <h3>And you're done...</h3>
+                <p>Validatr relies on using modern HTML5 <a href="https://developer.mozilla.org/en-US/docs/HTML/Element/Input#Attributes" target="_blank">input attributes</a> to perform validation. Validatr will use native validation whereever possible, relying on a small piece of Modernizr to test for support. If an input type is not supported or a custom test is found Validatr will use it's own ruleset to supplement native validation. In either case, the validation message is displayed in a corss-browser manner allowing for customization.</p>
+            </section>
+            <section id="widget">
+                <h2>Widget</h2>
+                <h3>Options</h3>
+                <p>The options only apply to an instance of the jQuery widget - not access to the $.validatr class.</p>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Default</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>showall</code></td>
+                            <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Boolean" target="_blank">Boolean</a></td>
+                            <td class="span3">false</td>
+                            <td>Show all error messages at once when submitting the form.</td>
+                        </tr>
+                        <tr>
+                            <td><code>location</code></td>
+                            <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String" target="_blank">String</a></td>
+                            <td>right</td>
+                            <td>The location of the error message in relation to the input. Possible values are <code>left</code>, <code>right</code>, <code>top</code>, and <code>bottom</code>.</th>
+                        </tr>
+                        <tr>
+                            <td><code>position</code></td>
+                            <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function" target="_blank">Fucntion</a></td>
+                            <td>function ($error, $input) {}</td>
+                            <td>The position function places the error message on the page. The function receives the jQuery <code>error</code> element and the jQuery <code>input</code> element.</td>
+                        </tr>
+                        <tr>
+                            <td><code>template</code></td>
+                            <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String" target="_blank">String</a></td>
+                            <td>&lt;div&gt;{{message}}&lt;/div&gt;</td>
+                            <td>The format for the error message inlcuding wrapping HTML. The message will replace <code>{{message}}</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>theme</code></td>
+                            <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String" target="_blank">String</a></td>
+                            <td>'none'</td>
+                            <td>Apply a specific theme to the error message. Values can be <code>none</code>, <code>bootstrap</code>, or <code>jqueryui</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>valid</code></td>
+                            <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function" target="_blank">Fucntion</a></td>
+                            <td>$.noop</td>
+                            <td>A function that is called after a successful validation of a form. To prevent the default action (form submission) have this reunction retrun <code>false</code>.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h3>Methods</h3>
+                
+                <h4 id="add-test">.validatr('addTest', name[, fn])</h4>
+                <p>Add a custom test to the suite of <a href="#custom-tests">custom tests</a> that Validatr will perform on and input.</p>
+<pre class="prettyprint linenums">
+$('form').validatr('addTest', 'example', function (element) {});
+
+//or 
+
+$('form').validatr('addTest', {
+    example: function (element) {}
+});
+</pre>                
+                <h5>Alternate Invocation</h5>
+                <pre class="prettyprint inline-block">$.validatr.addTest(name[, fn])</pre>
+                <h5>Parameters</h5>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>name</code></td>
+                            <td>String or Object</td>
+                            <td>If passed as a string <code>addTest</code> will expect a a second argument <code>fn</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>fn</code></td>
+                            <td>Function</td>
+                            <td>The callback function for the test. It receives the <code>element</code> that is currently being tested as a parameter.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4 id="get-elements">.validatr('getElements') <small class="label label-info">jQuery Object</small></h4>
+                <p>Returns all of the elements that will be validated in a form. This includes any elements that exist outside of the form but have the <code>form</code> attrbiute specified.</p>
+                <pre class="prettyprint linenums">$('form').validatr('getElements')</pre>                
+                <h5>Alternate Invocation</h5>
+                <pre class="prettyprint inline-block js">$.validatr.getElements(form)</pre>
+
+                <h4 id="validate-element">.validatr('validateElement') <small class="label label-info">Boolean</small></h4>
+                <p>Returns the validity state of an element (boolean). It will not show any on-screen validation messages.</p>
+                <pre class="prettyprint linenums">$('form').validatr('validateElement')</pre>                
+                <h5>Alternate Invocation</h5>
+                <pre class="prettyprint inline-block js">$.validatr.validateElement(element)</pre>
+
+                <h4 id="validate-form">.validatr('validateForm') <small class="label label-info">Boolean</small></h4>
+                <p>Returns the validity state of a form (boolean). It will not show any on-screen validation messages.</p>
+                <pre class="prettyprint linenums">$('form').validatr('validateForm')</pre>                
+                <h5>Alternate Invocation</h5>
+                <pre class="prettyprint inline-block js">$.validatr.validateForm(form)</pre>
+            </section>
+            <section id="fields">
+                <h2>Fields</h2>
+                <h3>Types</h3>
+                <p>Validatr supports the follwoing HTML5 new input types. Input types such as <code>text</code>, <code>checkbox</code>, <code>radio</code>, etc. are also supported, but do not require the same level of validation. Input types such as <code>tel</code> don't have any validation logic in the HTML5 spec. Use the <code>pattern</code> attribute or create your own custom test.</p>
+                <br>
+                <h4>Color</h4>
+                <div class="row">
+                    <div class="span3">
+                        <form action="./">
+                            <input class="span1" type="color" name="color" required>
+                            <div>
+                                <input type="reset" class="btn btn-small" value="Reset">
+                                <input type="submit" class="btn btn-small btn-primary" value="Submit">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="span9">              
+                        <pre class="prettyprint">&lt;input type="color"&gt;</pre>                  
+                        <p><span class="label label-info">Format</span> The color provided must be a <a href="http://www.w3.org/TR/html-markup/input.color.html#input.color.attrs.value" target="_blank">simple color format</a>, example: #000000</p>
+                    </div>
+                </div>
+                <br>
+                <h4>Date</h4>
+                <div class="row">
+                    <div class="span3">
+                        <form action="./">
+                            <input class="input-medium" placeholder="mm/dd/yyyy" type="date" name="date" required>
+                            <div>
+                                <input type="reset" class="btn btn-small" value="Reset">
+                                <input type="submit" class="btn btn-small btn-primary" value="Submit">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="span9">              
+                        <pre class="prettyprint">&lt;input type="date"&gt;</pre>                  
+                        <h4>Attributes</h4>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Attribute</th>
+                                    <th>Format</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>min</code></td>
+                                    <td rowspan="2" class="align-middle">yyyy-mm-dd</td>
+                                    <td rowspan="2" class="align-middle">A valid <a href="http://tools.ietf.org/html/rfc3339#section-5.6" target="_blank">ISO 8601</a> date</td>
+                                </tr>
+                                <tr>
+                                    <td><code>max</code></td>
+                                </tr>
+                                <tr>
+                                    <td class="span2"><code>date-format</code></td>
+                                    <td class="span2">mm/dd/yyyy (default)</td>
+                                    <td>
+                                        <p>Any combination of <code>mm</code>, <code>dd</code>, and <code>yyyy</code> separated by a <code>/</code>, <code>-</code> or <code>.</code></p>
+                                        <p>When the <code>date</code> input type is not supported by the browser the input value will be expected in a non-ISO 8601 format.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <h4>Email</h4>
+                <div class="row">
+                    <div class="span3">
+                        <form action="./">
+                            <input class="input-medium" type="email" name="email" required>
+                            <div>
+                                <input type="reset" class="btn btn-small" value="Reset">
+                                <input type="submit" class="btn btn-small btn-primary" value="Submit">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="span9">              
+                        <pre class="prettyprint">&lt;input type="email"&gt;</pre>                  
+                        <h4>Attributes</h4>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Attribute</th>
+                                    <th>Format</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>multiple</code></td>
+                                    <td>"" or "multiple"</td>
+                                    <td>Allows for a comma <code>,</code> separated list of email addresses</td>
+                                </tr>
+                                <tr>
+                                    <td><code>pattern</code></td>
+                                    <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/RegExp" target="_blank">RegExp</a></td>
+                                    <td>Provide an alternate pattern for an email address, such as restricting to a domain</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <h4>Number</h4>
+                <div class="row">
+                    <div class="span3">
+                        <form action="./">
+                            <input class="input-medium" type="number" name="number" required>
+                            <div>
+                                <input type="reset" class="btn btn-small" value="Reset">
+                                <input type="submit" class="btn btn-small btn-primary" value="Submit">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="span9">              
+                        <pre class="prettyprint">&lt;input type="number"&gt;</pre>                  
+                        <h4>Attributes</h4>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Attribute</th>
+                                    <th>Format</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>min</code></td>
+                                    <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Number" target="_blank">Number</a></td>
+                                    <td>The minimum value for the input</td>
+                                </tr>
+                                <tr>
+                                    <td><code>max</code></td>
+                                    <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Number" target="_blank">Number</a></td>
+                                    <td>The maximum value for the input</td>
+                                </tr>
+                                <tr>
+                                    <td><code>step</code></td>
+                                    <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Number" target="_blank">Number</a></td>
+                                    <td>The increment between valid numbers starting from the <code>min</code> value or 0. Must be a postive number.</td>
+                                </tr>
+                           </tbody>
+                        </table>
+                    </div>
+                </div>
+                <h4>Range</h4>
+                 <div class="row">
+                    <div class="span3">
+                        <form action="./">
+                            <input class="input-medium" type="range" name="range">
+                            <div>
+                                <input type="reset" class="btn btn-small" value="Reset">
+                                <input type="submit" class="btn btn-small btn-primary" value="Submit">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="span9">              
+                        <pre class="prettyprint">&lt;input type="range"&gt;</pre>
+                        <p><span class="label label-info">Defaults</span> If the range type is supported by the browser the default <code>min</code> value is <b>0</b> and the <code>max</code> value is <b>100</b>.</p>
+                        <h4>Attributes</h4>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Attribute</th>
+                                    <th>Format</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>min</code></td>
+                                    <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Number" target="_blank">Number</a></td>
+                                    <td>The minimum value for the input</td>
+                                </tr>
+                                <tr>
+                                    <td><code>max</code></td>
+                                    <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Number" target="_blank">Number</a></td>
+                                    <td>The maximum value for the input</td>
+                                </tr>
+                                <tr>
+                                    <td><code>step</code></td>
+                                    <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Number" target="_blank">Number</a></td>
+                                    <td>The increment between valid numbers starting from the <code>min</code> value or 0. Must be a postive number.</td>
+                                </tr>
+                           </tbody>
+                        </table>
+                    </div>
+                </div>
+                <h4>URL</h4>
+                 <div class="row">
+                    <div class="span3">
+                        <form action="./">
+                            <input class="input-medium" type="url" name="url" required>
+                            <div>
+                                <input type="reset" class="btn btn-small" value="Reset">
+                                <input type="submit" class="btn btn-small btn-primary" value="Submit">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="span9">              
+                        <pre class="prettyprint">&lt;input type="url"&gt;</pre>
+                        <p><span class="label label-info">Validity</span> An absolute URL that can contain leading or trailing whitespace.</p>
+                        <h4>Attributes</h4>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Attribute</th>
+                                    <th>Format</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>                                
+                                    <td><code>pattern</code></td>
+                                    <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/RegExp" target="_blank">RegExp</a></td>
+                                    <td>Provide an alternate pattern for an email address, such as restricting to a domain</td>
+                                </tr>
+                           </tbody>
+                        </table>
+                    </div>
+                </div>
+                <h3>Attrbiutes</h3>
+                <p>The following are global attrbiutes that can be added to any element.</p>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>data-location</code></td>
+                            <td>The location of the error message. If set on a field this will override any value specified in the widget options.</td>
+                        </tr>
+                        <tr>
+                            <td><code>data-message</code></td>
+                            <td>A custom error message to display.</td>
+                        </tr>
+                        <tr>
+                            <td><code>form</code></td>
+                            <td>Allows you to include a field that exists outside a form in the form validation. The value of this attribute is the <code>id</code> of the form you want to use.</td>
+                        </tr>
+                        <tr>
+                            <td><code>required</code></td>
+                            <td>
+                                Indicates that a field must have a value. In the case of <code>checkbox</code> and <code>radio</code> inputs required to see if the field is <code>checked</code>.
+                                <br>
+                                <span class="label label-info">type="radio"</span> When using inputs with a type <code>radio</code> only one input in that group needs the <code>required</code> attribute.
+                            </td>
+                        </tr>
+                   </tbody>
+                </table>
+            </section>
+            <section id="messages">
+                <h2>Messages</h2>
+                <p>Error messages in Validatr are meant to mimic the default messages provided by the browser during native validation. Not all browsers use the exact same messaging, though. I chose to use the Chrome messages since Chrome currently has the most support for native form validation.</p>
+                <h3>L10n and Customization</h3>
+                <p>Validatr exposes the messages it uses and makes them available for customization. <br></p>
+                <p><span class="label label-warning">Use</span> This is currently only available for field types that are not supported by a browser, future releases will add the ability to override the error messages for natively supported fields as well.</p>
+<pre class="prettyprint">
+$.validatr.messages = {
+    checkbox: 'Please check this box if you want to proceed.',
+    color: 'Please enter a color in the format #xxxxxx',
+    email: {
+        single: 'Please enter an email address.',
+        multiple: 'Please enter a comma separated list of email addresses.'
+    },
+    pattern: 'Please match the requested format.',
+    radio: 'Please select one of these options.',
+    range: {
+        base: 'Please enter a {{type}}',
+        gte: 'Please enter a {{type}} greater than or equal to {{min}}.', 
+        gtelte: 'Please enter a {{type}} greater than or equal to {{min}}&lt;br&gt; and less than or equal to {{max}}.',
+        invalid: 'Invalid {{type}}',
+        lte: 'Please enter a {{type}} less than or equal to {{max}}.'
+    },
+    required: 'Please fill out this field.',
+    select: 'Please select an item in the list.',
+    url: 'Please enter a url.'
+};
+</pre>
+                <p>The <code>range</code> messages are valid for several different input types, including <code>date</code>, <code>number</code>, <code>range</code>, <code>time</code>, etc. When customizing these mssages make sure to include the <code>{{type}}</code>, <code>{{min}}</code>, and <code>{{max}}</code> keys. These will be replaced with the correct values during the validation process.</p>
+            </section>
+            <section id="custom-tests">
+                <h2>Custom Tests</h2>
+                <div class="row">
+                    <div class="span7">
+                        <p>Validtr can run any custom validation you want on an element using the <code>data-*</code> attribute. Use the <a href="#add-test">addTest</a> method to create new custom tests. You can optionally include a value for the <code>data-*</code> attribute that you can retreive in your test.</p>
+                    </div>
+                    <div class="span5">
+                        <pre class="prettyprint">&lt;input type="text" data-customtest&gt;</pre>
+                    </div>
+                </div>
+                
+                <h3>Callback</h3>
+<pre class="prettyprint linenums">
+function (element) {
+    // Validation logic here
+
+    return {
+        valid: true/false,
+        message: 'Error'
+    };
+}
+</pre>
+                <h4>Returns</h4>
+                <p>All tests must return an object in the following form:</p>
+<pre class="prettyprint linenums">
+{
+    valid: Boolean,
+    message: 'String'
+};
+</pre>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>valid</code></td>
+                            <td>Boolean</td>
+                            <td>Whether or not the element passes or failed validation.</td>
+                        </tr>
+                        <tr>
+                            <td><code>message</code></td>
+                            <td>String</td>
+                            <td>In the case of failed validation the message that will be displayed.</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h3>Included Tests</h3>
+                <h4>match</h4>
+                <p>This will test if the current element matches the value of a specified element - targeted though the <code>id</code> or <code>name</code>.</p>
+                <p><pre class="prettyprint">&lt;input type="date" data-match="name-or-id"&gt;</pre></p>
+                <h4>as</h4>
+                <p>Accepts a <code>text</code> element to be tested as any other type of element. The value of the attribute is the type of test you want run, such as <code>date</code> or <code>number</code>.</p>
+                <p><pre class="prettyprint">&lt;input type="text" data-as="date"&gt;</pre></p>
+            </section>
+            <section id="license">
+                <h2>License</h2>
+<pre class="prettyprint">
+Copyright (c) 2013 Jay Morrow
+
+Permission is hereby granted, free of charge, to any person
+obtaining a copy of this software and associated documentation
+files (the "Software"), to deal in the Software without
+restriction, including without limitation the rights to use,
+copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WIT
+</pre>
+            </section>
+        </div>
+    </main>
+    <hr>
+    <footer class="container-fluid">
+        <p>Copyright &copy; 2013 - Jay Morrow <a href="https://twitter.com/jaymorrow">@jaymorrow</a></p>
+    </footer>
+    <!-- <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script> -->
+    <script src="assets/js/jquery.js"></script>
+    <script src="assets/js/prettify.js"></script>
+    <script src="assets/js/validatr.min.js"></script>
+    <script src="assets/js/site.js"></script>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+</body>
+</html>

@@ -1,13 +1,36 @@
+body {
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
 main {
     display: block;
-    padding-top: 60px;
     padding-bottom: 40px;
+}
+
+.navbar .nav {
+    margin-top: 3px;
+}
+
+.navbar .navbar-text {
+    float: right;
+    line-height: 1;
+    margin-top: 12px;
 }
 
 .hero-unit {
     background-color: #fff;
     padding: 20px 0;
     margin-bottom: 0;
+}
+
+.hero-unit h1 {
+    font-size: 84px;
+    margin-bottom: 10px;
+}
+
+.hero-unit .icon-checkbox-checked {
+    position: relative;
+    top: 6px;
 }
 
 .sidebar-nav {
@@ -37,4 +60,8 @@ footer {
 
 .inline-block { 
     display: inline-block;
+}
+
+form .alert-success {
+    visibility: hidden;
 }
