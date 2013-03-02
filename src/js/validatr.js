@@ -301,7 +301,7 @@
     },
 
     parseDate = function (element) {
-        var format = element.getAttribute('data-format') || dateFormat,
+        var format = element.getAttribute('data-format') || $.fn.validatr.defualtOptions.dateFormat,
             split = format.split(Rules.separatorsNoGroup),
             dateSplit = element.value.split(Rules.separatorsNoGroup),
             isoSplit = 'yyyy-mm-dd'.split('-'),
@@ -342,7 +342,7 @@
         var date = pad(dateObj.getDate()),
             month = pad(dateObj.getMonth() + 1),
             year = dateObj.getFullYear(),
-            dateString = (element.getAttribute('data-format') || dateFormat).replace('mm', month).replace('yyyy', year).replace('dd', date);
+            dateString = (element.getAttribute('data-format') || $.fn.validatr.defualtOptions.dateFormat).replace('mm', month).replace('yyyy', year).replace('dd', date);
 
         return dateString;
     },
@@ -401,8 +401,6 @@
     submit = 'button, input[type=submit], input[type=button], input[type=reset]',
 
     supressError = false,
-
-    dateFormat = 'mm/dd/yyyy',
 
     // Validatr
     Validatr = function () {};
@@ -745,6 +743,7 @@
 
     $.fn.validatr.defualtOptions = {
         customMessages: false,
+        dateFormat: 'yyyy-mm-dd',
         location: 'right',
         position: position,
         showall: false,

@@ -40,6 +40,8 @@ Test assertions:
     }
 
     if (!InputTypes.date) {
+        $.fn.validatr.defualtOptions.dateFormat = 'mm/dd/yyyy';
+
         test('no support', function () {
             ok(InputTypes.date === false, '\'date\' type vaildation is not supported by your browser');
         });
