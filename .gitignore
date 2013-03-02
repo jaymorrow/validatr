@@ -1,5 +1,6 @@
 .DS_Store
 node_modules/
 release/
+docs/
 npm-debug.log
 *.sublime-*
