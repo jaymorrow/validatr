@@ -1,4 +1,4 @@
-/*! Validatr - v0.4.0 - 2013-03-01
+/*! Validatr - v0.4.0 - 2013-03-02
 * http://jaymorrow.github.com/validatr/
 * Copyright (c) 2013 Jay Morrow; Licensed MIT */
 (function(window, document, $, undefined) {

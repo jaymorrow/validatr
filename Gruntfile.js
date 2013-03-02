@@ -15,13 +15,24 @@ module.exports = function(grunt) {
         
         // Task configuration.
         clean: {
-            files: ['dist', 'release']
+            files: ['dist', 'docs/release', 'docs/libs']
+        },
+
+        copy: {
+            release: {
+                files: [
+                    { src: ['libs/**'], dest: 'docs/' },
+                    { src: ['tests/*.js'], dest: 'docs/' },
+                    { src: ['dist/min/validatr.min.js'], dest: 'docs/assets/js/', expand: true, flatten: true },
+                    { src: ['dist/min/validatr.min.css'], dest: 'docs/assets/css/', expand: true, flatten: true }
+                ]
+            }
         },
 
         compress: {
             release: {
                 options: {
-                    archive: 'release/<%= pkg.name %>.zip'
+                    archive: 'docs/release/<%= pkg.name %>.zip'
                 },
                 files: [
                     {
@@ -124,6 +135,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
@@ -132,5 +144,5 @@ module.exports = function(grunt) {
 
     // Default task.
     grunt.registerTask('default', ['watch']);
-    grunt.registerTask('release', ['qunit', 'clean', 'concat', 'cssmin', 'uglify', 'compress']);
+    grunt.registerTask('release', ['qunit', 'clean', 'concat', 'cssmin', 'uglify', 'compress', 'copy']);
 };
