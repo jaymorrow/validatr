@@ -1,110 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>API | Validatr</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Cross Browser HTML5 Form Validation.">
-    <meta name="author" content="Jay Morrow">
+---
+layout: default
+title: API
+---
 
-    <link href="assets/css/font.css" rel="stylesheet">
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/css/validatr.min.css" rel="stylesheet">
-    <link href="assets/css/site.css" rel="stylesheet">
-    <link href="assets/css/prettify.css" rel="stylesheet">
-    <!--[if lte IE 7]>
-    <style type="text/css">
-        h1 [class^=icon-],
-        .brand [class^=icon-] {
-            margin-right: 10px;
-        }
-    </style>
-    <![endif]-->
-    <!--[if IE]>
-    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <!--[if lte IE 7]>
-    <script src="assets/js/fonts.js"></script>
-    <![endif]-->
-
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/ico/apple-touch-icon-144-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/ico/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/ico/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href="assets/ico/apple-touch-icon-57-precomposed.png">
-    <link rel="shortcut icon" type="image/png" href="assets/ico/favicon.png">
-</head>
-<body>
-    <header class="navbar navbar-inverse navbar-fixed-top">
-        <div class="navbar-inner">
-            <div class="container">
-                <a class="brand" href="/validatr">
-                    <span aria-hidden="true" class="icon-checkbox-checked"></span>
-                    Validatr
-                </a>
-                <ul class="nav">
-                    <li>
-                        <a href="fields.html">Fields</a>
-                    </li>
-                    <li>
-                        <a href="api.html">API</a>
-                    </li>
-                    <li>
-                        <a href="tests.html">Tests</a>
-                    </li>
-                </ul>
-                <div class="navbar-text">
-                    <iframe src="http://ghbtns.com/github-btn.html?user=jaymorrow&repo=validatr&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
-                    <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jaymorrow.github.com/validatr/" data-via="jaymorrow" data-lang="en">Tweet</a>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <hr>
-
-    <main>
-        <div class="container">
-            <div class="hero-unit">
-                <h1>
-                    <span aria-hidden="true" class="icon-checkbox-checked"></span>
-                    Validatr
-                </h1>
-                <p>Cross Browser HTML5 Form Validation.</p>
-                <p>
-                    <a href="assets/validatr.zip" class="btn btn-large btn-primary">
-                        Download
-                        <span aria-hidden="true" class="icon-cloud-download"></span>
-                    </a>
-                    <a href="https://github.com/jaymorrow/validatr" class="btn btn-large">
-                        View
-                        <span aria-hidden="true" class="icon-github"></span>
-                    </a>
-                </p>
-            </div>
-        </div>
-        
-        <hr>
-        
-        <div class="container">
-            <h2>API</h2>
-            <h3>Attrbiutes</h3>
-            <p>Being updated. Come back soon.</p>
-        </div>
-    </main>
-
-    <hr>
-
-    <footer class="container">
-        <p>
-            Copyright &copy; 2013 - Jay Morrow
-            <a href="https://twitter.com/jaymorrow">@jaymorrow</a>
-        </p>
-    </footer>
-
-    <script src="libs/jquery/jquery.js"></script>
-    <script src="assets/js/prettify.js"></script>
-    <script src="assets/js/validatr.min.js"></script>
-    <script src="assets/js/site.js"></script>
-    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-</body>
-</html>
+<h2>API</h2>
+<h3>Widget</h3>
+<h4>Options</h4>
+<p>The options only apply to an instance of the jQuery widget - not access to the $.validatr class.</p>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>showall</code></td>
+            <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Boolean" target="_blank">Boolean</a></td>
+            <td class="span3">false</td>
+            <td>Show all error messages at once when submitting the form.</td>
+        </tr>
+        <tr>
+            <td><code>location</code></td>
+            <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String" target="_blank">String</a></td>
+            <td>right</td>
+            <td>The location of the error message in relation to the input. Possible values are <code>left</code>, <code>right</code>, <code>top</code>, and <code>bottom</code>.</th>
+        </tr>
+        <tr>
+            <td><code>position</code></td>
+            <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function" target="_blank">Fucntion</a></td>
+            <td>function ($error, $input) {}</td>
+            <td>The position function places the error message on the page. The function receives the jQuery <code>error</code> element and the jQuery <code>input</code> element.</td>
+        </tr>
+        <tr>
+            <td><code>template</code></td>
+            <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String" target="_blank">String</a></td>
+            <td>&lt;div&gt;{{message}}&lt;/div&gt;</td>
+            <td>The format for the error message inlcuding wrapping HTML. The message will replace <code>{{message}}</code>.</td>
+        </tr>
+        <tr>
+            <td><code>theme</code></td>
+            <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String" target="_blank">String</a></td>
+            <td>'none'</td>
+            <td>Apply a specific theme to the error message. Values can be <code>none</code>, <code>bootstrap</code>, or <code>jqueryui</code>.</td>
+        </tr>
+        <tr>
+            <td><code>valid</code></td>
+            <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function" target="_blank">Fucntion</a></td>
+            <td>$.noop</td>
+            <td>A function that is called after a successful validation of a form. To prevent the default action (form submission) have this reunction retrun <code>false</code>.</td>
+        </tr>
+    </tbody>
+</table>
