@@ -26,6 +26,13 @@ main {
 .hero-unit h1 {
     font-size: 84px;
     margin-bottom: 10px;
+    display: inline-block;
+}
+
+.hero-unit h2 {
+    display: inline-block;
+    font-size: 56px;
+    line-height: 1.5;
 }
 
 .hero-unit .icon-checkbox-checked {
