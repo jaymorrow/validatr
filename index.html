@@ -1,112 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <title>Validatr</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Cross Browser HTML5 Form Validation.">
-    <meta name="author" content="Jay Morrow">
+---
+layout: default
+title: Home
+---
 
-    <link href="assets/css/font.css" rel="stylesheet">
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/css/validatr.min.css" rel="stylesheet">
-    <link href="assets/css/site.css" rel="stylesheet">
-    <link href="assets/css/prettify.css" rel="stylesheet">
-    <!--[if lte IE 7]>
-    <style type="text/css">
-        h1 [class^=icon-],
-        .brand [class^=icon-] {
-            margin-right: 10px;
-        }
-    </style>
-    <![endif]-->
-    <!--[if IE]>
-    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <!--[if lte IE 7]>
-    <script src="assets/js/fonts.js"></script>
-    <![endif]-->
-
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/ico/apple-touch-icon-144-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/ico/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/ico/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href="assets/ico/apple-touch-icon-57-precomposed.png">
-    <link rel="shortcut icon" type="image/png" href="assets/ico/favicon.png">
-</head>
-<body>
-    <header class="navbar navbar-inverse navbar-fixed-top">
-        <div class="navbar-inner">
-            <div class="container">
-                <a class="brand" href="/validatr">
-                    <span aria-hidden="true" class="icon-checkbox-checked"></span>
-                    Validatr
-                </a>
-                <ul class="nav">
-                    <li>
-                        <a href="fields.html">Fields</a>
-                    </li>
-                    <li>
-                        <a href="api.html">API</a>
-                    </li>
-                    <li>
-                        <a href="tests.html">Tests</a>
-                    </li>
-                </ul>
-                <div class="navbar-text">
-                    <iframe src="http://ghbtns.com/github-btn.html?user=jaymorrow&repo=validatr&type=watch&count=true" allowtransparency="true" frameborder="0" scrolling="0" width="110" height="20"></iframe>
-                    <a href="https://twitter.com/share" class="twitter-share-button" data-url="http://jaymorrow.github.com/validatr/" data-via="jaymorrow" data-lang="en">Tweet</a>
-                </div>
+<p>Validatr relies on using modern HTML5 <a href="https://developer.mozilla.org/en-US/docs/HTML/Element/Input#Attributes" target="_blank">input attributes</a> to perform validation. Validatr will use native validation whereever possible, relying on a small piece of Modernizr to test for support. If an input type is not supported or a custom test is found Validatr will use it's own ruleset to supplement native validation. In either case, the validation message is displayed in a corss-browser manner allowing for customization.</p>
+<div class="row">
+    <div class="span4">
+        <form action="./">
+            <div class="alert alert-success">Form Valid!</div>
+            <label for="email">Email</label> 
+            <input type="email" id="email" name="email" required>
+            <div>                    
+                <input type="reset" class="btn btn-small" value="Reset">
+                <input type="submit" class="btn btn-small btn-primary" value="Submit">
             </div>
-        </div>
-    </header>
-
-    <hr>
-
-    <main>
-        <div class="container">
-            <div class="hero-unit">
-                <h1>
-                    <span aria-hidden="true" class="icon-checkbox-checked"></span>
-                    Validatr
-                </h1>
-                <p>Cross Browser HTML5 Form Validation.</p>
-                <p>
-                    <a href="assets/validatr.zip" class="btn btn-large btn-primary">
-                        Download
-                        <span aria-hidden="true" class="icon-cloud-download"></span>
-                    </a>
-                    <a href="https://github.com/jaymorrow/validatr" class="btn btn-large">
-                        View
-                        <span aria-hidden="true" class="icon-github"></span>
-                    </a>
-                </p>
-            </div>
-        </div>
-        
-        <hr>
-        
-        <div class="container">
-            <p>Validatr relies on using modern HTML5 <a href="https://developer.mozilla.org/en-US/docs/HTML/Element/Input#Attributes" target="_blank">input attributes</a> to perform validation. Validatr will use native validation whereever possible, relying on a small piece of Modernizr to test for support. If an input type is not supported or a custom test is found Validatr will use it's own ruleset to supplement native validation. In either case, the validation message is displayed in a corss-browser manner allowing for customization.</p>
-            <div class="row">
-                <div class="span4">
-                    <form action="./">
-                        <div class="alert alert-success">Form Valid!</div>
-                        <label for="email">Email</label> 
-                        <input type="email" id="email" name="email" required>
-                        <div>                    
-                            <input type="reset" class="btn btn-small" value="Reset">
-                            <input type="submit" class="btn btn-small btn-primary" value="Submit">
-                        </div>
-                    </form>
-                </div>
-                <div class="span8">
-                    <h4>JavaScript</h4>
+        </form>
+    </div>
+    <div class="span8">
+        <h4>JavaScript</h4>
 <pre class="prettyprint linenums">
 jQuery(function ($) {
     $('form').validatr(); 
 });
 </pre>        
-                    <h4>HTML</h4>
+        <h4>HTML</h4>
 <pre class="prettyprint linenums">
 &lt;form action="./"&gt;
     &lt;label for="email"&gt;Email&lt;/label&gt; 
@@ -117,24 +34,5 @@ jQuery(function ($) {
     &lt;/div&gt;
 &lt;/form&gt;
 </pre>                  
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <hr>
-
-    <footer class="container">
-        <p>
-            Copyright &copy; 2013 - Jay Morrow
-            <a href="https://twitter.com/jaymorrow">@jaymorrow</a>
-        </p>
-    </footer>
-
-    <script src="libs/jquery/jquery.js"></script>
-    <script src="assets/js/prettify.js"></script>
-    <script src="assets/js/validatr.min.js"></script>
-    <script src="assets/js/site.js"></script>
-    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-</body>
-</html>
+    </div>
+</div>
