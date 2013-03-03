@@ -68,7 +68,5 @@ form .alert-success {
 
 h5.method {
     font-size: 16px;
-    border-bottom: 1px dotted #000;
-    display: inline-block;
     line-height: 1.8;
 }
