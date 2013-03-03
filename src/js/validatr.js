@@ -398,8 +398,6 @@
         none: 'validatr' + '-error'
     },
 
-    submit = 'button, input[type=submit], input[type=button], input[type=reset]',
-
     supressError = false,
 
     // Validatr
@@ -425,15 +423,15 @@
                 return this.elements;
             }
 
-            var elements = $(form)
-                .map(function () {
-                    return this.elements ? $.makeArray(this.elements) : $.makeArray($(this).find('input, textarea, select'));
+            var elements = $(form).map(function () {
+                    return $.makeArray(this.elements);
                 })
-                .not(submit);
+                .not('fieldset, button, input[type=submit], input[type=button], input[type=reset]');
 
             if (form.id) {
-                elements = elements.add($('[for="' + form.id + '"]'));
+                elements = elements.add($('[form="' + form.id + '"]'));
             }
+
             return elements;
         },
 
