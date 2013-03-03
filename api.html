@@ -93,18 +93,15 @@ $('form').validatr('addTest', {
 </table>
 <h5 class="method">.validatr('getElements') <small class="label label-info">jQuery Object</small></h5>
 <p>Returns all of the elements that will be validated in a form. This includes any elements that exist outside of the form but have the <code>form</code> attrbiute specified.</p>
-<pre class="prettyprint linenums">$('form').validatr('getElements')</pre>                
 <p><strong>Alternate Invocation</strong></p>
 <pre class="prettyprint inline-block js">$.validatr.getElements(form)</pre>
 
-<h5 class="method">.validatr('validateElement') <small class="label label-info">Boolean</small></h5>
+<h5 class="method">.validatr('validateElement', element) <small class="label label-info">Boolean</small></h5>
 <p>Returns the validity state of an element (boolean). It will not show any on-screen validation messages.</p>
-<pre class="prettyprint linenums">$('form').validatr('validateElement')</pre>                
 <p><strong>Alternate Invocation</strong></p>
 <pre class="prettyprint inline-block js">$.validatr.validateElement(element)</pre>
 
-<h5 class="method">.validatr('validateForm') <small class="label label-info">Boolean</small></h5>
+<h5 class="method">.validatr('validateForm', form) <small class="label label-info">Boolean</small></h5>
 <p>Returns the validity state of a form (boolean). It will not show any on-screen validation messages.</p>
-<pre class="prettyprint linenums">$('form').validatr('validateForm')</pre>                
 <p><strong>Alternate Invocation</strong></p>
 <pre class="prettyprint inline-block js">$.validatr.validateForm(form)</pre>
