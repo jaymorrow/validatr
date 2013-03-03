@@ -18,10 +18,13 @@ title: API
     </thead>
     <tbody>
         <tr>
-            <td><code>showall</code></td>
-            <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Boolean" target="_blank">Boolean</a></td>
-            <td class="span3">false</td>
-            <td>Show all error messages at once when submitting the form.</td>
+            <td><code>dateFormat</code></td>
+            <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String" target="_blank">String</a></td>
+            <td class="span3">'yyyy-mm-dd'</td>
+            <td>
+                <p>Any combination of <code>mm</code>, <code>dd</code>, and <code>yyyy</code> separated by a <code>/</code>, <code>-</code> or <code>.</code></p>
+                <p>When the <code>date</code> input type is not supported by the browser the input value will be expected in whatever format is specified.</p>                
+            </td>
         </tr>
         <tr>
             <td><code>location</code></td>
@@ -34,6 +37,12 @@ title: API
             <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function" target="_blank">Fucntion</a></td>
             <td>function ($error, $input) {}</td>
             <td>The position function places the error message on the page. The function receives the jQuery <code>error</code> element and the jQuery <code>input</code> element.</td>
+        </tr>
+        <tr>
+            <td><code>showall</code></td>
+            <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Boolean" target="_blank">Boolean</a></td>
+            <td class="span3">false</td>
+            <td>Show all error messages at once when submitting the form.</td>
         </tr>
         <tr>
             <td><code>template</code></td>
@@ -105,3 +114,90 @@ $('form').validatr('addTest', {
 <p>Returns the validity state of a form (boolean). It will not show any on-screen validation messages.</p>
 <p><strong>Alternate Invocation</strong></p>
 <pre class="prettyprint inline-block js">$.validatr.validateForm(form)</pre>
+
+<h3>Messages</h3>
+<p>Error messages in Validatr are meant to mimic the default messages provided by the browser during native validation. Not all browsers use the exact same messaging, though. I chose to use the Chrome messages since Chrome currently has the most support for native form validation.</p>
+<h4>L10n and Customization</h4>
+<p>Validatr exposes the messages it uses and makes them available for customization. <br></p>
+<p><span class="label label-warning">Use</span> This is currently only available for field types that are not supported by a browser, future releases will add the ability to override the error messages for natively supported fields as well.</p>
+<pre class="prettyprint">
+$.validatr.messages = {
+    checkbox: 'Please check this box if you want to proceed.',
+    color: 'Please enter a color in the format #xxxxxx',
+    email: {
+        single: 'Please enter an email address.',
+        multiple: 'Please enter a comma separated list of email addresses.'
+    },
+    pattern: 'Please match the requested format.',
+    radio: 'Please select one of these options.',
+    range: {
+        base: 'Please enter a {{type}}',
+        gte: 'Please enter a {{type}} greater than or equal to {{min}}.', 
+        gtelte: 'Please enter a {{type}} greater than or equal to {{min}}&lt;br&gt; and less than or equal to {{max}}.',
+        invalid: 'Invalid {{type}}',
+        lte: 'Please enter a {{type}} less than or equal to {{max}}.'
+    },
+    required: 'Please fill out this field.',
+    select: 'Please select an item in the list.',
+    url: 'Please enter a url.'
+};
+</pre>
+<p>The <code>range</code> messages are valid for several different input types, including <code>date</code>, <code>number</code>, <code>range</code>, <code>time</code>, etc. When customizing these mssages make sure to include the <code>{{type}}</code>, <code>{{min}}</code>, and <code>{{max}}</code> keys. These will be replaced with the correct values during the validation process.</p>
+
+<h3>Custom Tests</h3>
+<div class="row">
+    <div class="span7">
+        <p>Validtr can run any custom validation you want on an element using the <code>data-*</code> attribute. Use the <a href="#add-test">addTest</a> method to create new custom tests. You can optionally include a value for the <code>data-*</code> attribute that you can retreive in your test.</p>
+    </div>
+    <div class="span5">
+        <pre class="prettyprint">&lt;input type="text" data-customtest&gt;</pre>
+    </div>
+</div>
+
+<h4>Callback</h4>
+<pre class="prettyprint linenums">
+function (element) {
+    // Validation logic here
+
+    return {
+        valid: true/false,
+        message: 'Error'
+    };
+}
+</pre>
+<h5>Returns</h5>
+<p>All tests must return an object in the following form:</p>
+<pre class="prettyprint linenums">
+{
+    valid: Boolean,
+    message: 'String'
+};
+</pre>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>valid</code></td>
+            <td>Boolean</td>
+            <td>Whether or not the element passes or failed validation.</td>
+        </tr>
+        <tr>
+            <td><code>message</code></td>
+            <td>String</td>
+            <td>In the case of failed validation the message that will be displayed.</td>
+        </tr>
+    </tbody>
+</table>
+<h4>Included Tests</h4>
+<h5>match</h5>
+<p>This will test if the current element matches the value of a specified element - targeted though the <code>id</code> or <code>name</code>.</p>
+<p><pre class="prettyprint">&lt;input type="date" data-match="name-or-id"&gt;</pre></p>
+<h5>as</h5>
+<p>Accepts a <code>text</code> element to be tested as any other type of element. The value of the attribute is the type of test you want run, such as <code>date</code> or <code>number</code>.</p>
+<p><pre class="prettyprint">&lt;input type="text" data-as="date"&gt;</pre></p>
