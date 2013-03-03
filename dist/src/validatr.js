@@ -1,4 +1,4 @@
-/*! Validatr - v0.4.0 - 2013-03-03
+/*! Validatr - v0.4.1 - 2013-03-03
 * http://jaymorrow.github.com/validatr/
 * Copyright (c) 2013 Jay Morrow; Licensed MIT */
 (function(window, document, $, undefined) {
@@ -393,8 +393,6 @@
         none: 'validatr' + '-error'
     },
 
-    submit = 'button, input[type=submit], input[type=button], input[type=reset]',
-
     supressError = false,
 
     // Validatr
@@ -420,15 +418,15 @@
                 return this.elements;
             }
 
-            var elements = $(form)
-                .map(function () {
-                    return this.elements ? $.makeArray(this.elements) : $.makeArray($(this).find('input, textarea, select'));
+            var elements = $(form).map(function () {
+                    return $.makeArray(this.elements);
                 })
-                .not(submit);
+                .not('fieldset, button, input[type=submit], input[type=button], input[type=reset]');
 
             if (form.id) {
-                elements = elements.add($('[for="' + form.id + '"]'));
+                elements = elements.add($('[form="' + form.id + '"]'));
             }
+
             return elements;
         },
 
