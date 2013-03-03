@@ -1,4 +1,4 @@
-/*! Validatr - v0.4.0 - 2013-03-02
+/*! Validatr - v0.4.0 - 2013-03-03
 * http://jaymorrow.github.com/validatr/
 * Copyright (c) 2013 Jay Morrow; Licensed MIT */
 (function(window, document, $, undefined) {
@@ -737,7 +737,6 @@
     };
 
     $.fn.validatr.defualtOptions = {
-        customMessages: false,
         dateFormat: 'yyyy-mm-dd',
         location: 'right',
         position: position,

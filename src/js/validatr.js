@@ -742,7 +742,6 @@
     };
 
     $.fn.validatr.defualtOptions = {
-        customMessages: false,
         dateFormat: 'yyyy-mm-dd',
         location: 'right',
         position: position,
