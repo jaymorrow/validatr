@@ -55,3 +55,39 @@ title: API
         </tr>
     </tbody>
 </table>
+<h4>Methods</h4>
+<h5>.validatr('addTest', name[, fn])</h5>
+<p>Add a custom test to the suite of <a href="#custom-tests">custom tests</a> that Validatr will perform on and input.</p>
+<pre class="prettyprint linenums">
+$('form').validatr('addTest', 'example', function (element) {});
+
+//or 
+
+$('form').validatr('addTest', {
+    example: function (element) {}
+});
+</pre>                
+<p><strong>Alternate Invocation</strong></p>
+<pre class="prettyprint inline-block">$.validatr.addTest(name[, fn])</pre>
+<p><strong>Parameters</strong></p>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td><code>name</code></td>
+            <td>String or Object</td>
+            <td>If passed as a string <code>addTest</code> will expect a a second argument <code>fn</code>.</td>
+        </tr>
+        <tr>
+            <td><code>fn</code></td>
+            <td>Function</td>
+            <td>The callback function for the test. It receives the <code>element</code> that is currently being tested as a parameter.</td>
+        </tr>
+    </tbody>
+</table>
