@@ -12,6 +12,9 @@
     <link href="assets/css/validatr.min.css" rel="stylesheet">
     <link href="assets/css/site.css" rel="stylesheet">
     <link href="assets/css/prettify.css" rel="stylesheet">
+    {% if page.tests %}
+    <link href="assets/css/qunit.css" rel="stylesheet">
+    {% endif %}
     <!--[if lte IE 7]>
     <style type="text/css">
         h1 [class^=icon-],
@@ -103,6 +106,18 @@
     <script src="assets/js/prettify.js"></script>
     <script src="assets/js/validatr.min.js"></script>
     <script src="assets/js/site.js"></script>
+    {% if page.tests %}
+    <script src="libs/qunit/qunit.js"></script>
+    <script>$.validatr.debug();</script>
+    <script src="tests/tests_checkbox.js"></script>
+    <script src="tests/tests_color.js"></script>
+    <script src="tests/tests_date.js"></script>
+    <script src="tests/tests_email.js"></script>
+    <script src="tests/tests_number.js"></script>
+    <script src="tests/tests_pattern.js"></script>
+    <script src="tests/tests_radio.js"></script>
+    <script src="tests/tests_url.js"></script>
+    {% endif %}
     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 </body>
 </html>
