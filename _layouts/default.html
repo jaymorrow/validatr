@@ -77,16 +77,20 @@
                     <h2> / {{ page.title }}</h2>
                 </div>
                 <p>Cross Browser HTML5 Form Validation.</p>
-                <p>
-                    <a href="release/validatr.zip" class="btn btn-large btn-primary">
+                <div class="btn-group">
+                    <button class="btn btn-large btn-primary dropdown-toggle" data-toggle="dropdown">
                         Download
                         <span aria-hidden="true" class="icon-cloud-download"></span>
-                    </a>
-                    <a href="https://github.com/jaymorrow/validatr" class="btn btn-large">
-                        View
-                        <span aria-hidden="true" class="icon-github"></span>
-                    </a>
-                </p>
+                    </button>                   
+                    <ul class="dropdown-menu">
+                        <li><a href="https://raw.github.com/jaymorrow/validatr/master/dist/validatr.min.js">Minified</a></li>
+                        <li><a href="https://raw.github.com/jaymorrow/validatr/master/dist/validatr.js">Development</a></li>
+                    </ul>
+                </div>
+                <a href="https://github.com/jaymorrow/validatr" class="btn btn-large" title="View on Github">
+                    View
+                    <span aria-hidden="true" class="icon-github"></span>
+                </a>
             </div>
         </div>
         
@@ -99,14 +103,13 @@
 
     <hr>
 
-    <footer class="container">
-        <p>
-            Copyright &copy; 2013 - Jay Morrow
-            <a href="https://twitter.com/jaymorrow">@jaymorrow</a>
-        </p>
+    <footer class="container clearfix">
+             <span class="pull-left">Distributable under the <a href="http://opensource.org/licenses/MIT" target="_blank">MIT</a> License.</span>
+             <span class="pull-right">Copyright &copy; 2013 - Jay Morrow <a href="https://twitter.com/jaymorrow">@jaymorrow</a></span>
     </footer>
 
     <script src="libs/jquery/jquery.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
     <script src="assets/js/prettify.js"></script>
     <script src="assets/js/validatr.min.js"></script>
     <script src="assets/js/site.js"></script>

@@ -26,18 +26,21 @@ main {
 .hero-unit h1 {
     font-size: 84px;
     margin-bottom: 10px;
-    display: inline-block;
+    display: inline;
 }
 
 .hero-unit h2 {
-    display: inline-block;
+    display: inline;
     font-size: 56px;
     line-height: 1.5;
 }
 
 .hero-unit .icon-checkbox-checked {
-    position: relative;
-    top: 6px;
+    font-size: 68px;
+}
+
+.hero-unit .btn-group button {
+    line-height: 21px;
 }
 
 .sidebar-nav {

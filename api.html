@@ -52,8 +52,11 @@ title: API
         <tr>
             <td><code>theme</code></td>
             <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String" target="_blank">String</a></td>
-            <td>'none'</td>
-            <td>Apply a specific theme to the error message. Values can be <code>none</code>, <code>bootstrap</code>, or <code>jqueryui</code>.</td>
+            <td>''</td>
+            <td>
+                Class names to be added to the error message HTML. If an empty string is provided default (inline) styles will be added.<br>
+                Preset theme values can be <code>bootstrap</code> or <code>jqueryui</code>, adding framework classes to the message HTML.
+            </td>
         </tr>
         <tr>
             <td><code>valid</code></td>
@@ -131,15 +134,16 @@ $.validatr.messages = {
     radio: 'Please select one of these options.',
     range: {
         base: 'Please enter a {{type}}',
-        gte: 'Please enter a {{type}} greater than or equal to {{min}}.', 
-        gtelte: 'Please enter a {{type}} greater than or equal to {{min}}&lt;br&gt; and less than or equal to {{max}}.',
+        overflow: 'Please enter a {{type}} greater than or equal to {{min}}.', 
+        overUnder: 'Please enter a {{type}} greater than or equal to {{min}}&lt;br&gt; and less than or equal to {{max}}.',
         invalid: 'Invalid {{type}}',
-        lte: 'Please enter a {{type}} less than or equal to {{max}}.'
+        underflow: 'Please enter a {{type}} less than or equal to {{max}}.'
     },
     required: 'Please fill out this field.',
     select: 'Please select an item in the list.',
+    time: 'Please enter a time in the format hh:mm:ss',
     url: 'Please enter a url.'
-};
+}
 </pre>
 <p>The <code>range</code> messages are valid for several different input types, including <code>date</code>, <code>number</code>, <code>range</code>, <code>time</code>, etc. When customizing these mssages make sure to include the <code>{{type}}</code>, <code>{{min}}</code>, and <code>{{max}}</code> keys. These will be replaced with the correct values during the validation process.</p>
 
