@@ -1,4 +1,3 @@
-
 module.exports = function(grunt) {
     'use strict';
 
@@ -15,7 +14,7 @@ module.exports = function(grunt) {
         
         // Task configuration.
         clean: {
-            files: ['dist', 'docs/release', 'docs/libs']
+            files: ['dist', 'docs/release', 'docs/libs', 'docs/tests']
         },
 
         copy: {
@@ -23,24 +22,7 @@ module.exports = function(grunt) {
                 files: [
                     { src: ['libs/**'], dest: 'docs/' },
                     { src: ['tests/*.js'], dest: 'docs/' },
-                    { src: ['dist/min/validatr.min.js'], dest: 'docs/assets/js/', expand: true, flatten: true },
-                    { src: ['dist/min/validatr.min.css'], dest: 'docs/assets/css/', expand: true, flatten: true }
-                ]
-            }
-        },
-
-        compress: {
-            release: {
-                options: {
-                    archive: 'docs/release/<%= pkg.name %>.zip'
-                },
-                files: [
-                    {
-                        expand: true,
-                        cwd: 'dist/',
-                        src: ['**'],
-                        dest: '<%= pkg.name %>'
-                    }
+                    { src: ['dist/validatr.min.js'], dest: 'docs/assets/js/', expand: true, flatten: true }
                 ]
             }
         },
@@ -52,19 +34,7 @@ module.exports = function(grunt) {
             },
             dist: {
                 src: ['src/js/<%= pkg.name %>.js'],
-                dest: 'dist/src/<%= pkg.name %>.js'
-            },
-            distcss: {
-                src: ['src/css/<%= pkg.name %>.css'],
-                dest: 'dist/src/<%= pkg.name %>.css'
-            }
-        },
-
-        cssmin: {
-            dist: {
-                files: {
-                    'dist/min/<%= pkg.name %>.min.css': ['<%= concat.distcss.dest %>']
-                }
+                dest: 'dist/<%= pkg.name %>.js'
             }
         },
 
@@ -74,7 +44,7 @@ module.exports = function(grunt) {
             },
             dist: {
                 src: '<%= concat.dist.dest %>',
-                dest: 'dist/min/<%= pkg.name %>.min.js'
+                dest: 'dist/<%= pkg.name %>.min.js'
             }
         },
 
@@ -133,10 +103,8 @@ module.exports = function(grunt) {
 
     // These plugins provide necessary tasks.
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-contrib-cssmin');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-qunit');
     grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -144,5 +112,5 @@ module.exports = function(grunt) {
 
     // Default task.
     grunt.registerTask('default', ['watch']);
-    grunt.registerTask('release', ['qunit', 'clean', 'concat', 'cssmin', 'uglify', 'compress', 'copy']);
+    grunt.registerTask('release', ['jshint', 'qunit', 'clean', 'concat', 'uglify', 'copy']);
 };

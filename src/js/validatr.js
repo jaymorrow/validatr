@@ -114,6 +114,7 @@
         },
         email: /^[a-zA-Z0-9.!#$%&’*+\/=?\^_`{|}~\-]+@[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)*$/,
         isoDate: /^(\d{4})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/,
+        isoMonth: /^(\d{4})-(0[1-9]|1[012])$/,
         leftright: /left|right/i,
         notInput: /select|textarea/i,
         number: /^-?\d*\.?\d*$/,
@@ -392,10 +393,17 @@
     },
 
     theme = {
-        base: 'validatr' + '-message ',
         bootstrap: 'alert alert-error',
-        jqueryui: 'ui-state-error ui-corner-all',
-        none: 'validatr' + '-error'
+        jqueryui: 'ui-state-error ui-corner-all'
+    },
+
+    inlineStyles = {
+        color: '#f0444d',
+        backgroundColor: '#ffcbcb',
+        border: '1px solid #e4a6af',
+        padding: '2px 6px',
+        borderRadius: '2px'
+
     },
 
     supressError = false,
@@ -477,7 +485,18 @@
         this.firstError = false;
 
         this.options = $.extend({}, $.fn.validatr.defualtOptions, options);
-        this.options.template = $(this.options.template).addClass(theme.base + theme[this.options.theme])[0].outerHTML;
+
+        this.template = (function (options) {
+            var template = $(options.template).addClass('validatr-message');
+            
+            if (options.theme.length) {
+                template.addClass(theme[options.theme] || options.theme);
+            } else {
+                template.css(inlineStyles);
+            }
+
+            return template[0].outerHTML;
+        }(this.options));
 
         this.elements = this.getElements(this.el)
             .on('valid.' + 'validatr', $.proxy(validElement, this))
@@ -642,7 +661,7 @@
             $target = $(target),
             options = this.options,
             msg = target.getAttribute('data-message') || $.data(target, 'validationMessage'),
-            error = $(options.template.replace('{{message}}', msg));
+            error = $(this.template.replace('{{message}}', msg));
 
 
         if (this.isSubmit && !this.firstError) {
@@ -745,7 +764,7 @@
         position: position,
         showall: false,
         template: '<div>{{message}}</div>',
-        theme: 'none',
+        theme: '',
         valid: $.noop
     };
 

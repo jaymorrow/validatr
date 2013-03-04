@@ -29,10 +29,10 @@ Test assertions:
              try {
                  this.input = document.createElement('<input type="radio" name="radio">');
              } catch (err) {
-                 this.input = document.createElement('input');
+                this.input = document.createElement('input');
+                this.input.setAttribute('type','radio');
+                this.input.setAttribute('name','radio');
              }
-             this.input.setAttribute('type','radio');
-             this.input.setAttribute('name','radio');
         }
     });
 
