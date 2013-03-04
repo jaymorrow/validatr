@@ -46,8 +46,8 @@ title: API
         <tr>
             <td><code>template</code></td>
             <td><a href="https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/String" target="_blank">String</a></td>
-            <td>&lt;div&gt;{{message}}&lt;/div&gt;</td>
-            <td>The format for the error message inlcuding wrapping HTML. The message will replace <code>{{message}}</code>.</td>
+            <td>&lt;div&gt;{{"{{message"}}}}&lt;/div&gt;</td>
+            <td>The format for the error message inlcuding wrapping HTML. The message will replace <code>{{"{{message"}}}}</code>.</td>
         </tr>
         <tr>
             <td><code>theme</code></td>
@@ -133,11 +133,11 @@ $.validatr.messages = {
     pattern: 'Please match the requested format.',
     radio: 'Please select one of these options.',
     range: {
-        base: 'Please enter a {{type}}',
-        overflow: 'Please enter a {{type}} greater than or equal to {{min}}.', 
-        overUnder: 'Please enter a {{type}} greater than or equal to {{min}}&lt;br&gt; and less than or equal to {{max}}.',
-        invalid: 'Invalid {{type}}',
-        underflow: 'Please enter a {{type}} less than or equal to {{max}}.'
+        base: 'Please enter a {{"{{type"}}}}',
+        overflow: 'Please enter a {{"{{type"}}}} greater than or equal to {{"{{min"}}}}.', 
+        overUnder: 'Please enter a {{"{{type"}}}} greater than or equal to {{"{{min"}}}}&lt;br&gt; and less than or equal to {{"{{max"}}}}.',
+        invalid: 'Invalid {{"{{type"}}}}',
+        underflow: 'Please enter a {{"{{type"}}}} less than or equal to {{"{{max"}}}}.'
     },
     required: 'Please fill out this field.',
     select: 'Please select an item in the list.',
@@ -145,7 +145,7 @@ $.validatr.messages = {
     url: 'Please enter a url.'
 }
 </pre>
-<p>The <code>range</code> messages are valid for several different input types, including <code>date</code>, <code>number</code>, <code>range</code>, <code>time</code>, etc. When customizing these mssages make sure to include the <code>{{type}}</code>, <code>{{min}}</code>, and <code>{{max}}</code> keys. These will be replaced with the correct values during the validation process.</p>
+<p>The <code>range</code> messages are valid for several different input types, including <code>date</code>, <code>number</code>, <code>range</code>, <code>time</code>, etc. When customizing these mssages make sure to include the <code>{{"{{type"}}}}</code>, <code>{{"{{min"}}}}</code>, and <code>{{"{{max"}}}}</code> keys. These will be replaced with the correct values during the validation process.</p>
 
 <h3>Custom Tests</h3>
 <div class="row">
