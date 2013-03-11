@@ -9,6 +9,12 @@ View the [documentation][docs] to learn how to use Validatr.
 
 ## Changelog
 
+### Version 0.5.0 - 2013-03-11
+
+* Added unit tests for the jQuery instance and the widget
+* Fixed typo 'defualtOptions' - now 'defaultOptions'
+* Re-structured code to prep for more robust formatting and adding more input types
+
 ### Version 0.4.2 - 2013-03-03
 
 * Default error message styles now inline - removed CSS file
