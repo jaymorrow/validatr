@@ -23,8 +23,8 @@ Test assertions:
 
     var InputTypes = $.validatr.Support.inputtypes,
         Tests = $.validatr.Tests,
-        parseISODate = $.validatr.parseISODate,
-        formatISODate = $.validatr.formatISODate;
+        parseISODate = $.validatr.Format.parseISODate,
+        formatISODate = $.validatr.Format.formatISODate;
 
     module('tests: date', {
         setup: function () {
@@ -40,7 +40,7 @@ Test assertions:
     }
 
     if (!InputTypes.date) {
-        $.fn.validatr.defualtOptions.dateFormat = 'mm/dd/yyyy';
+        $.fn.validatr.defaultOptions.dateFormat = 'mm/dd/yyyy';
 
         test('no support', function () {
             ok(InputTypes.date === false, '\'date\' type vaildation is not supported by your browser');

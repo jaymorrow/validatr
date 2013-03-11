@@ -9,7 +9,6 @@
 
     <link href="assets/css/font.css" rel="stylesheet">
     <link href="assets/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/css/validatr.min.css" rel="stylesheet">
     <link href="assets/css/site.css" rel="stylesheet">
     <link href="assets/css/prettify.css" rel="stylesheet">
     {% if page.tests %}
@@ -83,8 +82,8 @@
                         <span aria-hidden="true" class="icon-cloud-download"></span>
                     </button>                   
                     <ul class="dropdown-menu">
-                        <li><a href="https://raw.github.com/jaymorrow/validatr/master/dist/validatr.min.js">Minified</a></li>
-                        <li><a href="https://raw.github.com/jaymorrow/validatr/master/dist/validatr.js">Development</a></li>
+                        <li><a href="https://raw.github.com/jaymorrow/validatr/master/dist/validatr.min.js" class="download" data-type="minified">Minified</a></li>
+                        <li><a href="https://raw.github.com/jaymorrow/validatr/master/dist/validatr.js" class="download" data-type="development">Development</a></li>
                     </ul>
                 </div>
                 <a href="https://github.com/jaymorrow/validatr" class="btn btn-large" title="View on Github">
@@ -124,7 +123,19 @@
     <script src="tests/tests_pattern.js"></script>
     <script src="tests/tests_radio.js"></script>
     <script src="tests/tests_url.js"></script>
+    <script src="tests/tests_widget.js"></script>
     {% endif %}
     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    <script type="text/javascript">
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-39147151-1']);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
 </body>
 </html>

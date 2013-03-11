@@ -13,4 +13,13 @@ jQuery(function ($) {
     }).on('reset', function () {
         $(this).find('.alert-success').css('visibility', 'hidden');
     });
+
+    $('a.download').on('click', function (e) {
+        e.preventDefault();
+        var link = this;
+        _gaq.push(['_trackEvent', 'Download', link.getAttribute('data-type')]);
+        setTimeout(function() {
+            document.location.href = link.href;
+        }, 100);
+    });
 });
