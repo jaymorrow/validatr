@@ -9,6 +9,10 @@ View the [documentation][docs] to learn how to use Validatr.
 
 ## Changelog
 
+### Version 0.5.1 - 2013-03-12
+
+* Fixed $target bug introduced in 0.5.0
+
 ### Version 0.5.0 - 2013-03-11
 
 * Added unit tests for the jQuery instance and the widget

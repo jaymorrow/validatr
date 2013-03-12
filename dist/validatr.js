@@ -1,4 +1,4 @@
-/*! Validatr - v0.5.0 - 2013-03-11
+/*! Validatr - v0.5.1 - 2013-03-12
 * http://jaymorrow.github.com/validatr/
 * Copyright (c) 2013 Jay Morrow; Licensed MIT */
 (function(window, document, $, undefined) {
@@ -556,7 +556,7 @@
 
     function bindEvents (e) {
         var target = e.target,
-            $target = target;
+            $target = $(target);
 
         if (target.nodeName.toLowerCase() === 'select') {
             $target.on('change.validatrinput', function () {
@@ -566,7 +566,7 @@
             });
         }
 
-        $(target).on({
+        $target.on({
             'blur.validatrinput': function () {
                 validateElement(target);                
             },
