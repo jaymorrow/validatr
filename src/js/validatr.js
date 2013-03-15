@@ -16,23 +16,23 @@
 
         var Support = {},
 
-            docElement = document.documentElement,
+        docElement = document.documentElement,
 
-            inputElem  = document.createElement('input'),
+        inputElem  = document.createElement('input'),
 
-            selectElem = document.createElement('select'),
+        selectElem = document.createElement('select'),
 
-            textareaElem = document.createElement('textarea'),
+        textareaElem = document.createElement('textarea'),
 
-            smile = ':)',
+        smile = ':)',
 
-            tests = {},
+        tests = {},
 
-            inputs = {},
+        inputs = {},
 
-            attrs = {},
+        attrs = {},
 
-            testElem;
+        testElem;
 
         Support.attributes = (function( props ) {
             for ( var i = 0, len = props.length; i < len; i++ ) {
@@ -104,25 +104,67 @@
         return Support;
     }()),
 
+    /*
+     * Really simple date/time logic
+     * Mostly taken from moment.js version : 2.0.0
+     * author : Tim Wood
+     * license : MIT
+     * momentjs.com
+     */
     Format = (function () {
-        var rules = {
-            isoDate: /^(\d{4})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/
-        },
+        var tokens = /(d?d|m?m|(?:yy)?yy|M?M)/g,
+        
+        tokenOneTwo = /\d{1,2}/,
+        tokenTwo = /\d{2}/,
+        tokenFour = /\d{4}/,
 
-        utils = {
-            separators: /(\/|\-|\.)/g,
-            separatorsNoGroup: /\/|\-|\./g,
-            dateParts: {
-                dd: '(0[1-9]|[12][0-9]|3[01])',
-                mm: '(0[1-9]|1[012])',
-                yyyy: '(\\d{4})'
+        _monthFullNames = 'January|February|March|April|May|June|July|August|September|October|November|December',
+        _monthShortNames = 'Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec',
+        
+        monthFullNames = new RegExp(_monthFullNames, 'i'),
+        monthShortNames = new RegExp(_monthShortNames, 'i'),    
+
+        fullMonths = _monthFullNames.toLowerCase().split('|'),
+        shortMonths = _monthShortNames.toLowerCase().split('|'),
+
+        formatParts = {
+            d: function () {
+                return this.getDate();
+            },
+            dd: function () {
+                return pad(this.getDate());
+            },
+            m: function () {
+                return this.getMonth() + 1;
+            },
+            mm: function () {
+                return pad(this.getMonth() + 1) 
+            },
+            yy: function () {
+                return this.getFullYear().toString().substr(2);
+            },
+            yyyy: function () {
+                return this.getFullYear();
+            },
+            M: function () {
+                return proper(shortMonths[this.getMonth()]);
+            },
+            MM: function () {
+                return proper(fullMonths[this.getMonth()]);
             }
         };
+
+        function proper(m) {
+            return m.substr(0,1).toUpperCase() + m.substr(1);
+        }
+        
+        function pad(n) {
+            return n < 10 ? '0' + n : n;
+        }
 
         function indexOf(array, value) {
             var index = -1,
                 length = array ? array.length : 0;
-
 
             while (++index < length) {
                 if (array[index] === value) {
@@ -133,58 +175,100 @@
             return -1;
         }
 
-
-        function parseDate(element) {
-            var format = element.getAttribute('data-format') || $.fn.validatr.defaultOptions.dateFormat,
-                split = format.split(utils.separatorsNoGroup),
-                dateSplit = element.value.split(utils.separatorsNoGroup),
-                isoSplit = 'yyyy-mm-dd'.split('-'),
-                rule = format.replace(utils.separators, '\\$1')
-                            .replace('yyyy', utils.dateParts.yyyy)
-                            .replace('mm', utils.dateParts.mm)
-                            .replace('dd', utils.dateParts.dd),
-                index = -1,
-                length = isoSplit.length,
-                iso = [];
-       
-            rule = new RegExp(rule);
-            if (!rule.test(element.value)) {
-                return false;
+        function getParts(token) {
+            switch(token) {
+            case 'd' :
+            case 'dd':
+            case 'm' :
+            case 'mm':
+                return tokenOneTwo;
+            case 'M':
+                return monthShortNames;
+            case 'MM':
+                return monthFullNames;
+            case 'yy':
+                return tokenTwo;
+            case 'yyyy':
+                return tokenFour;
             }
-
-            while (++index < length) {
-                iso[index] = dateSplit[ indexOf(split, isoSplit[index]) ];
-            }
-            
-            return parseISODate(iso.join('-'));
         }
 
-        function parseISODate(dateString) {
-            if (!rules.isoDate.test(dateString)) {
-                return false;
+        function createDateArray(token, input, dateArray) {
+            switch(token) {
+            case 'd' :
+            case 'dd':
+                dateArray[2] = ~~input;
+                break;
+            case 'm' :
+            case 'mm':
+                dateArray[1] = ~~input - 1;
+                break;
+            case 'M':
+                dateArray[1] = indexOf(shortMonths, input.toLowerCase());
+                break;
+            case 'MM':
+                dateArray[1] = indexOf(fullMonths, input.toLowerCase());
+                break;
+            case 'yy'  :
+                dateArray[0] = ~~('20' + input);
+                break;
+            case 'yyyy':
+                dateArray[0] = ~~input;
+                break;
             }
-
-            var date = rules.isoDate.exec(dateString);
-            return new Date(parseInt(date[1], 10), parseInt(date[2], 10) - 1, parseInt(date[3], 10));
         }
 
-        function formatISODate(dateObj, element) {
-            function pad(n) {
-                return n < 10 ? '0' + n : n;
+        function createDate(dateArray) {
+            var i = 0,
+                date = [];
+
+            for (i; i < 7; i += 1) {
+                date[i] = (dateArray[i] == null) ? (i === 2 ? 1 : 0) : dateArray[i];
             }
 
-            var date = pad(dateObj.getDate()),
-                month = pad(dateObj.getMonth() + 1),
-                year = dateObj.getFullYear(),
-                dateString = (element.getAttribute('data-format') || $.fn.validatr.defaultOptions.dateFormat).replace('mm', month).replace('yyyy', year).replace('dd', date);
+            return new Date(date[0], date[1], date[2], date[3], date[4], date[5], date[6]);
+        }
 
-            return dateString;
+        function parseDate(string, format) {
+            var parts = format.match(tokens),
+                dateArray = [],
+                length = parts.length,
+                i = 0, 
+                input;
+
+            for (i; i < length; i += 1) {
+                input = (getParts(parts[i]).exec(string) || [])[0];
+                
+                if (input) {
+                    string = string.slice(string.indexOf(input) + input.length);
+                }
+                createDateArray(parts[i], input, dateArray);
+            }
+
+            if (dateArray.length) {
+                return createDate(dateArray);
+            }    
+        }
+
+        function formatDate(dateObj, format) {
+            var parts = format.match(tokens),
+                length = parts.length,
+                i = 0,
+                string = '';
+
+            for (i; i < length; i += 1) {
+                string += formatParts[ parts[i] ].call(dateObj);
+            }
+
+            return string;
         }
 
         return {
-            formatISODate: formatISODate,
-            parseDate: parseDate,
-            parseISODate: parseISODate
+            date: parseDate,
+            isoDate: function (string) {
+                return parseDate(string, 'yyyy-mm-dd');
+            },
+            toString: formatDate
         };
     }()),
 
@@ -205,14 +289,7 @@
 
         minMax = function (value, min, max, step, type) {
             var result = true,
-                msg = $.validatr.messages.range.base,
-                minString = min,
-                maxString = max;
-
-            if (type === 'date') {
-                minString = min && Format.formatISODate(min, this);
-                maxString = max && Format.formatISODate(max, this);
-            }
+                msg = $.validatr.messages.range.base;
 
             if (value !== false) {
                 if (step !== false) {
@@ -236,7 +313,7 @@
 
             return {
                 valid: value !== false && result,
-                message: msg.replace('{{type}}', type).replace('{{min}}', minString).replace('{{max}}', maxString)
+                message: msg
             };    
         };
 
@@ -257,12 +334,13 @@
 
             date: function (element) {
                 var $element = $(element),
-                    value = Support.inputtypes.date ? Format.parseISODate(element.value) : Format.parseDate(element),
-                    min = $element.attr('min') ? Format.parseISODate($element.attr('min')) : false,
-                    max = $element.attr('max') ? Format.parseISODate($element.attr('max')) : false,
-                    step = false;
-                
-                return minMax.call(element, value, min, max, step, 'date');
+                    value = Format.date(element.value, $element.attr('data-format') || $.fn.validatr.defaultOptions.dateFormat),
+                    min = $element.attr('min') ? Format.isoDate($element.attr('min')) : false,
+                    max = $element.attr('max') ? Format.isoDate($element.attr('max')) : false,
+                    step = false,
+                    result = minMax(value, min, max, step, 'date');
+
+                return result;
             },
 
             email: function (element) {
@@ -576,7 +654,7 @@
                 validateElement(target);                
             },
             'keyup.validatrinput': function (event) {
-                if (target.value.length && $.inArray(keyCodes, event.keyCode) === -1) {
+                if (target.value.length && $.inArray(event.keyCode, keyCodes) === -1) {
                     validateElement(target);
                 }                
             }
@@ -842,5 +920,4 @@
     $.expr[':'].validatr = function(elem) {
         return !!$.data(elem, 'validatr');
     };
-
 }(this, this.document, jQuery));
