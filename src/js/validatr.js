@@ -43,7 +43,7 @@
 
 
         Support.inputtypes = (function(props) {
-            
+
             for ( var i = 0, bool, inputElemType, defaultView, len = props.length; i < len; i++ ) {
                 inputElem.setAttribute('type', inputElemType = props[i]);
                 bool = inputElem.type !== 'text';
@@ -78,10 +78,10 @@
             return inputs;
         })('search tel url email datetime date month week time datetime-local number range color'.split(' '));
 
-        (function(props) {        
+        (function(props) {
             for ( var i = 0, len = props.length; i < len; i++ ) {
                 testElem = inputElem;
-                
+
                 try {
                     testElem.setAttribute('type', props[i]);
                 } catch (e) {
@@ -112,17 +112,17 @@
      * momentjs.com
      */
     Format = (function () {
-        var tokens = /(d?d|m?m|(?:yy)?yy|M?M)/g,
-        
+        var tokens = /(d?d|w?w|m?m|(?:yy)?yy|M?M)/g,
+
         tokenOneTwo = /\d{1,2}/,
         tokenTwo = /\d{2}/,
         tokenFour = /\d{4}/,
 
         _monthFullNames = 'January|February|March|April|May|June|July|August|September|October|November|December',
         _monthShortNames = 'Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec',
-        
+
         monthFullNames = new RegExp(_monthFullNames, 'i'),
-        monthShortNames = new RegExp(_monthShortNames, 'i'),    
+        monthShortNames = new RegExp(_monthShortNames, 'i'),
 
         fullMonths = _monthFullNames.toLowerCase().split('|'),
         shortMonths = _monthShortNames.toLowerCase().split('|'),
@@ -138,7 +138,7 @@
                 return this.getMonth() + 1;
             },
             mm: function () {
-                return pad(this.getMonth() + 1) 
+                return pad(this.getMonth() + 1);
             },
             yy: function () {
                 return this.getFullYear().toString().substr(2);
@@ -157,7 +157,7 @@
         function proper(m) {
             return m.substr(0,1).toUpperCase() + m.substr(1);
         }
-        
+
         function pad(n) {
             return n < 10 ? '0' + n : n;
         }
@@ -178,22 +178,28 @@
         function getParts(token) {
             switch(token) {
             case 'd' :
-            case 'dd':
+            case 'w' :
             case 'm' :
-            case 'mm':
                 return tokenOneTwo;
+            case 'dd':
+            case 'ww':
+            case 'mm':
+            case 'yy':
+                return tokenTwo;
             case 'M':
                 return monthShortNames;
             case 'MM':
                 return monthFullNames;
-            case 'yy':
-                return tokenTwo;
             case 'yyyy':
                 return tokenFour;
             }
         }
 
         function createDateArray(token, input, dateArray) {
+            if (input === undefined) {
+                return;
+            }
+
             switch(token) {
             case 'd' :
             case 'dd':
@@ -230,37 +236,45 @@
         }
 
         function parseDate(string, format) {
-            var parts = format.match(tokens),
+            var parts = format.match(tokens) || [],
                 dateArray = [],
                 length = parts.length,
-                i = 0, 
+                i = 0,
                 input;
 
+            if (!length) {
+                throw new Error('Ivalid date format.');
+            }
             for (i; i < length; i += 1) {
                 input = (getParts(parts[i]).exec(string) || [])[0];
-                
+
                 if (input) {
                     string = string.slice(string.indexOf(input) + input.length);
                 }
                 createDateArray(parts[i], input, dateArray);
             }
 
-            if (dateArray.length) {
+            if (dateArray.length && dateArray.length === length) {
                 return createDate(dateArray);
-            }    
+            }
         }
 
         function formatDate(dateObj, format) {
-            var parts = format.match(tokens),
+            var parts = format.match(tokens) || [],
                 length = parts.length,
-                i = 0,
-                string = '';
+                i = 0;
 
-            for (i; i < length; i += 1) {
-                string += formatParts[ parts[i] ].call(dateObj);
+            if (!length) {
+                throw new Error('Ivalid date format.');
             }
 
-            return string;
+            for (i; i < length; i += 1) {
+                if ( formatParts[ parts[i] ]) {
+                    format = format.replace(parts[i], formatParts[ parts[i] ].call(dateObj));
+                }
+            }
+
+            return format;
         }
 
         return {
@@ -276,7 +290,6 @@
         var rules = {
             color: /^#[0-9A-F]{6}$/i,
             email: /^[a-zA-Z0-9.!#$%&’*+\/=?\^_`{|}~\-]+@[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)*$/,
-            isoDate: /^(\d{4})-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/,
             number: /^-?\d*\.?\d*$/,
             time: /^([01][0-9]|2[0-3])(:([0-5][0-9])){2}$/,
             url: /^\s*https?:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?\s*$/
@@ -307,14 +320,32 @@
                     } else if (max !== false) {
                         result = value <= max;
                         msg = $.validatr.messages.range.underflow;
-                    }  
+                    }
                 }
             }
 
             return {
                 valid: value !== false && result,
                 message: msg
-            };    
+            };
+        },
+
+        getFormat = function (element) {
+            return element.getAttribute('data-format') || ( $.data(element.form, 'validatr').options.dateFormat || $.fn.validatr.defaultOptions.dateFormat );
+        },
+
+        formatMessage = function (message, type, min, max) {
+            message = message.replace('{{type}}', type);
+
+            if (min) {
+                message = message.replace('{{min}}', min);
+            }
+
+            if (max) {
+                message = message.replace('{{max}}', max);
+            }
+
+            return message;
         };
 
         return {
@@ -334,12 +365,16 @@
 
             date: function (element) {
                 var $element = $(element),
-                    value = Format.date(element.value, $element.attr('data-format') || $.fn.validatr.defaultOptions.dateFormat),
+                    format = getFormat(element),
+                    value = Format.date(element.value, format) || false,
                     min = $element.attr('min') ? Format.isoDate($element.attr('min')) : false,
                     max = $element.attr('max') ? Format.isoDate($element.attr('max')) : false,
                     step = false,
                     result = minMax(value, min, max, step, 'date');
 
+                if (!result.valid) {
+                    result.message = formatMessage(result.message, 'date', Format.toString(min, format), Format.toString(max, format));
+                }
                 return result;
             },
 
@@ -373,13 +408,19 @@
                     num = rules.number.test(value) ? parseFloat(value) : false,
                     min = rules.number.test( element.getAttribute('min') ) ? parseFloat( element.getAttribute('min') ) : false,
                     max = rules.number.test( element.getAttribute('max') ) ? parseFloat( element.getAttribute('max') ) : false,
-                    step = rules.number.test( element.getAttribute('step') ) ? parseFloat( element.getAttribute('step') ) : element.getAttribute('step') === 'any' ? 'any' : false;
-                
+                    step = rules.number.test( element.getAttribute('step') ) ? parseFloat( element.getAttribute('step') ) : element.getAttribute('step') === 'any' ? 'any' : false,
+                    result;
+
                 if (step === false || step <= 0) {
                     step = 1;
                 }
 
-                return minMax.call(element, value, min, max, step, 'number');
+                result = minMax(value, min, max, step, 'number');
+
+                if (!result.valid) {
+                    result.message = formatMessage(result.message, 'number', min, max);
+                }
+                return result;
             },
 
             pattern: function (element) {
@@ -587,7 +628,7 @@
 
         this.template = (function (options) {
             var template = $(options.template).addClass('validatr-message');
-            
+
             if (options.theme.length) {
                 template.addClass(theme[options.theme] || options.theme);
             } else {
@@ -623,7 +664,7 @@
 
         this.formElements.on({
             'focus.validatrelement': bindEvents,
-            'blur.validatrelement': unbindEvents 
+            'blur.validatrelement': unbindEvents
         });
 
         $('input[type=radio], input[type=checkbox]').on('click.validatrelement', function (e) {
@@ -644,19 +685,19 @@
         if (target.nodeName.toLowerCase() === 'select') {
             $target.on('change.validatrinput', function () {
                 setTimeout(function () {
-                    validateElement(target);                
+                    validateElement(target);
                 }, 1);
             });
         }
 
         $target.on({
             'blur.validatrinput': function () {
-                validateElement(target);                
+                validateElement(target);
             },
             'keyup.validatrinput': function (event) {
                 if (target.value.length && $.inArray(event.keyCode, keyCodes) === -1) {
                     validateElement(target);
-                }                
+                }
             }
         });
     }
@@ -687,7 +728,7 @@
         } else {
             if (required) {
                 check = Tests.required(element);
-            }   
+            }
 
             if (check.valid && element.value.length && !filters.boxes.test(type)) {
                 if (element.pattern) {
@@ -714,16 +755,16 @@
         if (check.valid) {
             $element.trigger('valid');
             return true;
-        } 
-        
+        }
+
         $.data(element, 'validationMessage', check.message);
         $element.trigger('invalid');
-        
+
         return false;
     }
 
     function validateForm (elements) {
-        var valid = true;        
+        var valid = true;
 
         elements.each(function (i, element) {
             if (!validateElement(element)) {
@@ -812,7 +853,7 @@
 
             if (location === 'bottom') {
                 error.offset({top: offset.top + error.outerHeight()});
-            }            
+            }
         } else if (filters.leftright.test(location)) {
             error.offset({top: (offset.top + $target.outerHeight() / 2) - (error.outerHeight() / 2)});
 
@@ -822,13 +863,13 @@
 
             if (location === 'right') {
                 error.offset({left: offset.left + $target.outerWidth() + 2});
-            }            
-        }        
+            }
+        }
     }
 
     /*! Inspired by jQuery UI - v1.9.2 - 2012-12-04
      * http://jqueryui.com
-     * Copyright (c) 2012 jQuery Foundation and other contributors Licensed MIT 
+     * Copyright (c) 2012 jQuery Foundation and other contributors Licensed MIT
      */
     $.fn.validatr = function(options) {
         var isMethod = typeof options === 'string',
@@ -839,7 +880,7 @@
         if (isMethod) {
             this.each(function() {
                 var methodValue;
-                
+
                 instance = $.data(this, 'validatr');
                 if (!instance) {
                     throw new Error("cannot call methods on validatr prior to initialization; attempted to call method '" + options + "'" );
@@ -870,17 +911,21 @@
     };
 
     $.fn.validatr.defaultOptions = {
-        dateFormat: 'yyyy-mm-dd',
+        dateFormat: 'yyyy-mm-d',
         location: 'right',
+        monthFormat: 'yyyy-mm',
         position: position,
         showall: false,
         template: '<div>{{message}}</div>',
         theme: '',
-        valid: $.noop
+        valid: $.noop,
+        weekFormat: 'yyyy-Www',
+        weekStart: 1,
+        yearStart: 4
     };
 
     $.validatr = new Validatr();
-    
+
     $.validatr.messages = {
         checkbox: 'Please check this box if you want to proceed.',
         color: 'Please enter a color in the format #xxxxxx',
@@ -892,7 +937,7 @@
         radio: 'Please select one of these options.',
         range: {
             base: 'Please enter a {{type}}',
-            overflow: 'Please enter a {{type}} greater than or equal to {{min}}.', 
+            overflow: 'Please enter a {{type}} greater than or equal to {{min}}.',
             overUnder: 'Please enter a {{type}} greater than or equal to {{min}}<br> and less than or equal to {{max}}.',
             invalid: 'Invalid {{type}}',
             underflow: 'Please enter a {{type}} less than or equal to {{max}}.'
@@ -902,10 +947,10 @@
         time: 'Please enter a time in the format hh:mm:ss',
         url: 'Please enter a url.'
     };
-    
+
     $.validatr.debug = function () {
         /*global QUnit */
-        
+
         if (!QUnit) {
             throw new Error('QUnit is required for debugging');
         }
@@ -920,4 +965,6 @@
     $.expr[':'].validatr = function(elem) {
         return !!$.data(elem, 'validatr');
     };
+
+    //console.log(Format.toString(new Date(), 'yyyy-mm'));
 }(this, this.document, jQuery));
