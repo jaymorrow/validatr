@@ -134,6 +134,12 @@
             dd: function () {
                 return pad(this.getDate());
             },
+            w: function () {
+                return getWeek(this);
+            },
+            ww: function () {
+                return pad(getWeek(this));
+            },
             m: function () {
                 return this.getMonth() + 1;
             },
@@ -205,6 +211,10 @@
             case 'dd':
                 dateArray[2] = ~~input;
                 break;
+            case 'w' :
+            case 'ww':
+                dateArray[3] = ~~input;
+                break;
             case 'm' :
             case 'mm':
                 dateArray[1] = ~~input - 1;
@@ -222,6 +232,29 @@
                 dateArray[0] = ~~input;
                 break;
             }
+        }
+
+        function getWeek(date) {
+             var first = new Date(date.getFullYear(), 0, 1, 0, 0, 0);
+            return Math.ceil((((date - first) / 86400000) + first.getDay()+1)/7);
+        }
+
+        function createDateFromWeek(dateArray) {
+            var date = dayOfWeek(dateArray[0]),
+                weekTime = 1000 * 60 * 60 * 24 * 7 * (dateArray[3] - 1),
+                targetTime = date.getTime() + weekTime - (86400000 * (date.getDay() - $.fn.validatr.defaultOptions.weekStart)),
+                result = new Date(targetTime);
+                result.setHours(0);
+
+            return result;
+        }
+
+        function dayOfWeek(year) {
+            var date = new Date(year, 0, 1, 0, 0, 0),
+                day = ($.fn.validatr.defaultOptions.yearStart - date.getDay()) + date.getDate();
+
+            date.setDate(day);
+            return date;
         }
 
         function createDate(dateArray) {
@@ -251,7 +284,12 @@
                 if (input) {
                     string = string.slice(string.indexOf(input) + input.length);
                 }
+
                 createDateArray(parts[i], input, dateArray);
+            }
+
+            if (/w?w/.test(format)) {
+                return createDateFromWeek(dateArray);
             }
 
             if (dateArray.length && dateArray.length === length) {
@@ -920,8 +958,8 @@
         theme: '',
         valid: $.noop,
         weekFormat: 'yyyy-Www',
-        weekStart: 1,
-        yearStart: 4
+        weekStart: 0,
+        yearStart: 6
     };
 
     $.validatr = new Validatr();
@@ -966,5 +1004,5 @@
         return !!$.data(elem, 'validatr');
     };
 
-    //console.log(Format.toString(new Date(), 'yyyy-mm'));
+    console.log(Format.toString(new Date(2013, 0, 14), 'yyyy-Www'));
 }(this, this.document, jQuery));
