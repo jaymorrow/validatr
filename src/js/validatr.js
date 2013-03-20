@@ -236,7 +236,7 @@
 
         function getWeek(date) {
              var first = new Date(date.getFullYear(), 0, 1, 0, 0, 0);
-            return Math.ceil((((date - first) / 86400000) + first.getDay()+1)/7);
+            return Math.ceil((((date - first) / 86400000) + first.getDay() + 1) / 7);
         }
 
         function createDateFromWeek(dateArray) {
