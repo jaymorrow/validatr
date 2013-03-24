@@ -235,7 +235,8 @@
         }
 
         function getWeek(date) {
-             var first = new Date(date.getFullYear(), 0, 1, 0, 0, 0);
+            var first = new Date(date.getFullYear(), 0, 1, 0, 0, 0);
+
             return Math.ceil((((date - first) / 86400000) + first.getDay() + 1) / 7);
         }
 
@@ -259,10 +260,17 @@
 
         function createDate(dateArray) {
             var i = 0,
-                date = [];
+                date = [],
+                isNum = false;
 
             for (i; i < 7; i += 1) {
-                date[i] = (dateArray[i] == null) ? (i === 2 ? 1 : 0) : dateArray[i];
+                isNum = typeof dateArray[i] === 'number';
+
+                if (!isNum && i < 2) {
+                    return false;
+                }
+
+                date[i] = !isNum ? (i === 2 ? 1 : 0) : dateArray[i];
             }
 
             return new Date(date[0], date[1], date[2], date[3], date[4], date[5], date[6]);
@@ -281,10 +289,11 @@
             for (i; i < length; i += 1) {
                 input = (getParts(parts[i]).exec(string) || [])[0];
 
-                if (input) {
-                    string = string.slice(string.indexOf(input) + input.length);
+                if (!input) {
+                    continue;
                 }
 
+                string = string.slice(string.indexOf(input) + input.length);
                 createDateArray(parts[i], input, dateArray);
             }
 
@@ -298,6 +307,14 @@
         }
 
         function formatDate(dateObj, format) {
+            if (dateObj === false) {
+                return false;
+            }
+
+            if (format === undefined) {
+                format = 'yyyy-mm-dd';
+            }
+
             var parts = format.match(tokens) || [],
                 length = parts.length,
                 i = 0;
@@ -329,7 +346,6 @@
             color: /^#[0-9A-F]{6}$/i,
             email: /^[a-zA-Z0-9.!#$%&’*+\/=?\^_`{|}~\-]+@[a-zA-Z0-9\-]+(?:\.[a-zA-Z0-9\-]+)*$/,
             number: /^-?\d*\.?\d*$/,
-            time: /^([01][0-9]|2[0-3])(:([0-5][0-9])){2}$/,
             url: /^\s*https?:\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?\s*$/
         },
 
@@ -338,7 +354,7 @@
             spaces: /,\s*/
         },
 
-        minMax = function (value, min, max, step, type) {
+        minMax = function (value, min, max, step) {
             var result = true,
                 msg = $.validatr.messages.range.base;
 
@@ -368,8 +384,9 @@
             };
         },
 
-        getFormat = function (element) {
-            return element.getAttribute('data-format') || ( $.data(element.form, 'validatr').options.dateFormat || $.fn.validatr.defaultOptions.dateFormat );
+        getFormat = function (element, type) {
+            type += 'Format';
+            return element.getAttribute('data-format') || ( $.data(element.form, 'validatr').options[type] || $.fn.validatr.defaultOptions[type] );
         },
 
         formatMessage = function (message, type, min, max) {
@@ -403,12 +420,12 @@
 
             date: function (element) {
                 var $element = $(element),
-                    format = getFormat(element),
+                    format =  getFormat(element, 'date'),
                     value = Format.date(element.value, format) || false,
                     min = $element.attr('min') ? Format.isoDate($element.attr('min')) : false,
                     max = $element.attr('max') ? Format.isoDate($element.attr('max')) : false,
                     step = false,
-                    result = minMax(value, min, max, step, 'date');
+                    result = minMax(value, min, max, step);
 
                 if (!result.valid) {
                     result.message = formatMessage(result.message, 'date', Format.toString(min, format), Format.toString(max, format));
@@ -439,6 +456,21 @@
                     valid: valid,
                     message: msg
                 };
+            },
+
+            month: function (element) {
+                var $element = $(element),
+                    format = getFormat(element, 'month'),
+                    value = Format.date(element.value, format) || false,
+                    min = $element.attr('min') ? Format.isoDate($element.attr('min') + '01') : false,
+                    max = $element.attr('max') ? Format.isoDate($element.attr('max') + '01') : false,
+                    step = false,
+                    result = minMax(value, min, max, step);
+
+                if (!result.valid) {
+                    result.message = formatMessage(result.message, 'month', Format.toString(min, format), Format.toString(max, format));
+                }
+                return result;
             },
 
             number: function (element) {
@@ -487,13 +519,6 @@
                 return {
                     valid: !!element.value.length,
                     message: element.nodeName.toLowerCase() === 'select' ? $.validatr.messages.select : $.validatr.messages.required
-                };
-            },
-
-            time: function (element) {
-                return {
-                    valid: rules.time.test(element.value),
-                    message: $.validatr.messages.time
                 };
             },
 
@@ -1003,6 +1028,4 @@
     $.expr[':'].validatr = function(elem) {
         return !!$.data(elem, 'validatr');
     };
-
-    console.log(Format.toString(new Date(2013, 0, 14), 'yyyy-Www'));
 }(this, this.document, jQuery));
